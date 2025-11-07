@@ -1,0 +1,11 @@
+--bootstrap []
+Lệnh: npm i bootstrap@5.3.5
+
+--ant-design-vue (tạo menu) [http://antdv.com/]
+Lệnh: npm i --save ant-design-vue@4.x
+
+--pinia (tạo store đồng bộ các luồng) [https://pinia.vuejs.org/core-concepts/]
+Lệnh: npm install pinia
+
+--axios () [https://axios-http.com/]
+Lệnh: npm install axios

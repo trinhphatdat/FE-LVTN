@@ -1,0 +1,86 @@
+<template>
+    <form @submit.prevent="createRole">
+        <a-card title="Tạo mới vai trò" style="width: 100%;">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <!--  -->
+                    <div class="row mb-3">
+                        <div class="col-12 col-sm-3 text-start text-sm-end">
+                            <label for="">
+                                <span class="text-danger me-1">*</span>
+                                <span :class="{ 'text-danger': errors.name }">Tên vai trò</span>
+                            </label>
+                        </div>
+                        <div class="col-12 col-sm-5">
+                            <a-input placeholder="Tên vai trò" allow-clear v-model:value="roles.name"
+                                :class="{ 'input-danger': errors.name }" />
+                            <div class=" w-100"></div>
+                            <small v-if="errors.name" class="text-danger">{{ errors.name[0] }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 d-grid mx-auto d-sm-flex justify-content-sm-end">
+                    <router-link :to="{ name: 'admin-roles' }">
+                        <a-button class="me-sm-2 mb-3 mb-sm-0">
+                            <span>Huỷ</span>
+                        </a-button>
+                    </router-link>
+                    <a-button type="primary" html-type="submit">
+                        <span>Lưu</span>
+                    </a-button>
+                </div>
+            </div>
+        </a-card>
+    </form>
+</template>
+
+<script setup>
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { useMenuAdmin } from '@/stores/use-menu-admin.js';
+import { message } from 'ant-design-vue';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+const store = useMenuAdmin();
+store.onSelectedKeys(['admin-roles']);
+
+const router = useRouter()
+
+const roles = reactive({
+    name: '',
+})
+const createRole = () => {
+    axios.post(`${API_URL}/roles`, roles)
+        .then((response) => {
+            console.log(response);
+            if (response.status === 200) {
+                message.success("Thêm thành công")
+                router.push({ name: 'admin-roles' })
+            }
+        })
+        .catch((error) => {
+            errors.value = error.response.data.errors
+            // console.log(error);
+        });
+}
+const errors = ref({})
+// const filterOption = (input, option) => {
+//     return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+// };
+
+</script>
+
+<style scoped>
+.select-danger {
+    border: 1px solid red;
+    border-radius: 7px;
+}
+
+.input-danger {
+    border-color: red;
+}
+</style>
