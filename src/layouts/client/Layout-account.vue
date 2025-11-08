@@ -12,6 +12,7 @@ const route = useRoute()
 const title = computed(() => {
     if (route.name === 'account-login') return 'Đăng nhập'
     if (route.name === 'account-register') return 'Đăng kí'
+    if (route.name === 'account-orders') return 'Đơn hàng của tôi'
     if (route.name === 'account-profile') return 'Thông tin tài khoản'
     if (route.name === 'account-profile-edit') return 'Chỉnh sửa thông tin cá nhân'
     if (route.name === 'account-reset-password') return 'Đặt lại mật khẩu'
@@ -25,7 +26,7 @@ const title = computed(() => {
     <TheBreadcumbs />
     <div class="container mt-5 mb-5">
         <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-6">
+            <div class="col-12 col-md-8 col-lg-8">
                 <div class="account-card">
                     <h1 class="text-center mb-3">{{ title }}</h1>
                     <router-view />

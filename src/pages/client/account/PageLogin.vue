@@ -10,6 +10,10 @@ const router = useRouter()
 
 const userStore = useUserStore()
 
+if (userStore.isLoggedIn) {
+    router.push({ name: 'home' })
+}
+
 const errors = ref({})
 const loadingSubmit = ref(false)
 

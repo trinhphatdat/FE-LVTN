@@ -3,9 +3,14 @@ import { reactive, ref, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useUserStore } from '@/stores/use-user-store'
 
 const API_URL = import.meta.env.VITE_API_URL
 const router = useRouter()
+const userStore = useUserStore()
+if (userStore.isLoggedIn) {
+    router.push({ name: 'home' })
+}
 
 const formRegister = reactive({
     fullname: '',

@@ -12,6 +12,18 @@ const client = [
         component: () => import('@/layouts/client/Layout-account.vue'),
         children: [
             {
+                path: 'orders',
+                name: 'account-orders',
+                component: () => import('@/pages/client/account/PageOrders.vue'),
+                meta: { title: 'Đơn hàng của tôi' }
+            },
+            {
+                path: 'orders/:id',
+                name: 'account-order-detail',
+                component: () => import('@/pages/client/account/PageOrderDetails.vue'),
+                meta: { title: 'Chi tiết đơn hàng' }
+            },
+            {
                 path: 'login',
                 name: 'account-login',
                 component: () => import('@/pages/client/account/PageLogin.vue'),

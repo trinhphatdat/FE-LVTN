@@ -2,6 +2,10 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import {
+    Steps,
+    Step,
+    Timeline,
+    TimelineItem,
     RangePicker,
     DatePicker,
     Statistic,
@@ -90,6 +94,12 @@ app.use(Carousel)
 app.use(Tooltip)
 app.use(Rate)
 app.use(Comment)
+
+app.use(Timeline)
+app.use(TimelineItem)
+
+app.use(Steps)
+app.use(Step)
 
 app.use(Select)
 app.use(Input)

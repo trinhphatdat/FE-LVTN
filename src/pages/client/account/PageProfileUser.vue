@@ -94,7 +94,7 @@ const handleUpdateUser = () => {
                         <span :class="{ 'text-danger': errors.fullname }">Tên người dùng</span>
                     </label>
                 </div>
-                <div class="col-12 col-lg-9">
+                <div class="col-12 col-lg-7">
                     <a-input id="input-fullname" placeholder="Họ và tên" allow-clear v-model:value="formUpdate.fullname"
                         :class="{ 'input-danger': errors.fullname }" />
                     <div class=" w-100"></div>
@@ -109,7 +109,7 @@ const handleUpdateUser = () => {
                         <span :class="{ 'text-danger': errors.email }">Email</span>
                     </label>
                 </div>
-                <div class="col-12 col-lg-9">
+                <div class="col-12 col-lg-7">
                     <a-input id="input-email" placeholder="Email" allow-clear v-model:value="formUpdate.email"
                         :class="{ 'input-danger': errors.email }" />
                     <div class=" w-100"></div>
@@ -124,7 +124,7 @@ const handleUpdateUser = () => {
                         <span :class="{ 'text-danger': errors.phone_number }">Số điện thoại</span>
                     </label>
                 </div>
-                <div class="col-12 col-lg-9">
+                <div class="col-12 col-lg-7">
                     <a-input id="input-phone_number" placeholder="Họ và tên" allow-clear
                         v-model:value="formUpdate.phone_number" :class="{ 'input-danger': errors.phone_number }" />
                     <div class=" w-100"></div>
@@ -134,13 +134,13 @@ const handleUpdateUser = () => {
 
             <!-- Địa chỉ -->
             <div class="row mb-3">
-                <div class="col-12 col-sm-3 text-start text-sm-end">
+                <div class="col-12 col-lg-3 text-lg-end text-start">
                     <label for="">
                         <span class="text-danger me-1">*</span>
                         <span :class="{ 'text-danger': errors.address }">Địa chỉ</span>
                     </label>
                 </div>
-                <div class="col-12 col-sm-9">
+                <div class="col-12 col-lg-7">
                     <a-input placeholder="Địa chỉ" allow-clear v-model:value="formUpdate.address"
                         :class="{ 'input-danger': errors.address }" />
                     <div class="w-100"></div>
@@ -165,7 +165,7 @@ const handleUpdateUser = () => {
                         <span :class="{ 'text-danger': errors.current_password }">Mật khẩu hiện tại</span>
                     </label>
                 </div>
-                <div class="col-12 col-lg-9">
+                <div class="col-12 col-lg-7">
                     <a-input-password placeholder="Mật khẩu hiện tại" allow-clear
                         v-model:value="formUpdate.current_password"
                         :class="{ 'input-danger': errors.current_password }" />
@@ -182,7 +182,7 @@ const handleUpdateUser = () => {
                         <span :class="{ 'text-danger': errors.password }">Mật khẩu mới</span>
                     </label>
                 </div>
-                <div class="col-12 col-lg-9">
+                <div class="col-12 col-lg-7">
                     <a-input-password placeholder="Mật khẩu" allow-clear v-model:value="formUpdate.password"
                         :class="{ 'input-danger': errors.password }" />
                     <div class="w-100"></div>
@@ -197,7 +197,7 @@ const handleUpdateUser = () => {
                         <span :class="{ 'text-danger': errors.password }">Xác nhận mật khẩu mới</span>
                     </label>
                 </div>
-                <div class="col-12 col-lg-9">
+                <div class="col-12 col-lg-7">
                     <a-input-password placeholder="Xác nhận mật khẩu" allow-clear
                         v-model:value="formUpdate.password_confirmation" :class="{ 'input-danger': errors.password }" />
                     <div class="w-100"></div>
