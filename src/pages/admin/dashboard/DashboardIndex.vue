@@ -6,7 +6,6 @@ const statistics = ref({
     totalRevenue: 125000000,
     totalOrders: 1234,
     totalProducts: 156,
-    totalCustomers: 892
 });
 
 const recentOrders = ref([
@@ -98,17 +97,6 @@ const getStatusText = (status) => {
                     </a-statistic>
                 </a-card>
             </a-col>
-
-            <a-col :xs="24" :sm="12" :lg="6">
-                <a-card>
-                    <a-statistic title="Tổng khách hàng" :value="statistics.totalCustomers"
-                        :value-style="{ color: '#722ed1' }">
-                        <template #prefix>
-                            <i class="fa-solid fa-users"></i>
-                        </template>
-                    </a-statistic>
-                </a-card>
-            </a-col>
         </a-row>
 
         <!-- Charts and Lists -->
@@ -134,62 +122,7 @@ const getStatusText = (status) => {
                 </a-card>
             </a-col>
 
-            <!-- Top Products -->
-            <a-col :xs="24" :lg="10">
-                <a-card title="Sản phẩm bán chạy" :bordered="false">
-                    <a-list :data-source="topProducts" :split="true">
-                        <template #renderItem="{ item, index }">
-                            <a-list-item>
-                                <a-list-item-meta>
-                                    <template #avatar>
-                                        <a-badge :count="index + 1" :number-style="{ backgroundColor: '#52c41a' }">
-                                            <a-avatar shape="square" size="large">
-                                                <i class="fa-solid fa-shirt"></i>
-                                            </a-avatar>
-                                        </a-badge>
-                                    </template>
-                                    <template #title>
-                                        <div class="fw-bold">{{ item.name }}</div>
-                                    </template>
-                                    <template #description>
-                                        <div class="d-flex justify-content-between">
-                                            <span>Đã bán: <strong>{{ item.sold }}</strong></span>
-                                            <span class="text-success fw-bold">{{ formatCurrency(item.revenue) }}</span>
-                                        </div>
-                                    </template>
-                                </a-list-item-meta>
-                            </a-list-item>
-                        </template>
-                    </a-list>
-                </a-card>
-            </a-col>
         </a-row>
-
-        <!-- Quick Actions -->
-        <!-- <a-row :gutter="[16, 16]" class="mt-4">
-            <a-col :span="24">
-                <a-card title="Thao tác nhanh" :bordered="false">
-                    <a-space :size="16" wrap>
-                        <a-button type="primary" size="large">
-                            <i class="fa-solid fa-plus me-2"></i>
-                            Thêm sản phẩm mới
-                        </a-button>
-                        <a-button size="large">
-                            <i class="fa-solid fa-shopping-cart me-2"></i>
-                            Xem đơn hàng
-                        </a-button>
-                        <a-button size="large">
-                            <i class="fa-solid fa-users me-2"></i>
-                            Quản lý khách hàng
-                        </a-button>
-                        <a-button size="large">
-                            <i class="fa-solid fa-chart-line me-2"></i>
-                            Báo cáo chi tiết
-                        </a-button>
-                    </a-space>
-                </a-card>
-            </a-col>
-        </a-row> -->
     </div>
 </template>
 

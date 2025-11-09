@@ -106,12 +106,12 @@ const columns = [
 const filteredOrders = computed(() => {
     let result = orders.value;
 
-    // Filter by status
+    // Lọc theo trạng thái
     if (selectedStatus.value !== 'all') {
         result = result.filter(order => order.status === selectedStatus.value);
     }
 
-    // Filter by search text
+    // Lọc theo text
     if (searchText.value) {
         const search = searchText.value.toLowerCase();
         result = result.filter(order =>
@@ -212,11 +212,6 @@ const deleteOrder = (order) => {
     });
 };
 
-// Print order
-const printOrder = (order) => {
-    message.info(`Đang in đơn hàng ${order.orderCode}...`);
-    // Implement print functionality
-};
 </script>
 
 <template>
@@ -334,12 +329,6 @@ const printOrder = (order) => {
                                     </a-button>
                                 </a-tooltip>
                             </a-dropdown>
-
-                            <a-tooltip title="In đơn hàng">
-                                <a-button size="small" @click="printOrder(record)">
-                                    <i class="fa-solid fa-print"></i>
-                                </a-button>
-                            </a-tooltip>
 
                             <a-tooltip title="Xóa">
                                 <a-button danger size="small" @click="deleteOrder(record)">

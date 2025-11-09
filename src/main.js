@@ -2,6 +2,8 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import {
+    Tabs,
+    TabPane,
     Steps,
     Step,
     Timeline,
@@ -82,6 +84,9 @@ app.use(Menu)
 app.use(Card)
 app.use(Table)
 app.use(Avatar)
+
+app.use(Tabs)
+app.use(TabPane)
 
 app.use(Statistic)
 app.use(DatePicker)
