@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
 import { useMenuAdmin } from '@/stores/use-menu-admin.js';
 import { message } from 'ant-design-vue';
-import dayjs from 'dayjs';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -19,46 +18,16 @@ const formData = reactive({
     fullname: '',
     email: '',
     phone_number: '',
-    address: '',
     role_id: null,
     status: null,
-    password: '',
-    password_confirmation: '',
+    address: '',
 
     change_password: false,
-    login_at: '',
-    change_password_at: '',
+    password: '',
+    password_confirmation: '',
 })
 
 const errors = ref({})
-
-//Điền value tương ứng khi click vào nút sửa
-const getUserEdit = () => {
-    axios.get(`${API_URL}/admin/users/${route.params.id}`, {
-        headers:
-        {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-    })
-        .then((response) => {
-            // console.log(response);
-            formData.fullname = response.data.fullname
-            formData.phone_number = response.data.phone_number
-            formData.email = response.data.email
-            formData.role_id = response.data.role_id
-            formData.status_id = response.data.status_id
-            response.data.login_at
-                ? formData.login_at = dayjs(response.data.login_at).format('DD/MM/YYYY - HH:mm:ss')
-                : formData.login_at = 'Chưa đăng nhập'
-            response.data.change_password_at
-                ? formData.change_password_at = dayjs(response.data.change_password_at).format('DD/MM/YYYY - HH:mm')
-                : formData.change_password_at = 'Chưa có lượt thay đổi mật khẩu'
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-}
-getUserEdit()
 
 const status = ref([
     { label: 'Tạm khóa', value: 0 },
@@ -75,12 +44,10 @@ const getRoles = () => {
     })
         .then((response) => {
             if (response.status === 200) {
-                roles.value = response.data.map(
-                    (role) => ({
-                        label: role.name,
-                        value: role.id
-                    })
-                );
+                roles.value = response.data.map((role) => ({
+                    label: role.name,
+                    value: role.id
+                }));
             }
         })
         .catch((error) => {
@@ -88,6 +55,29 @@ const getRoles = () => {
         });
 }
 getRoles();
+
+//Điền value tương ứng khi click vào nút sửa
+const getUserEdit = () => {
+    axios.get(`${API_URL}/admin/users/${route.params.id}`, {
+        headers:
+        {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+        .then((response) => {
+            // console.log(response);
+            formData.role_id = response.data.role_id
+            formData.status = response.data.status
+            formData.fullname = response.data.fullname
+            formData.email = response.data.email
+            formData.phone_number = response.data.phone_number
+            formData.address = response.data.address
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+}
+getUserEdit()
 
 const filterOption = (input, option) => {
     return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -109,7 +99,7 @@ const handleUpdateUser = () => {
         })
         .catch((error) => {
             errors.value = error.response.data.errors
-            console.log(error);
+            // console.log(error);
         });
 }
 
@@ -140,16 +130,16 @@ const handleUpdateUser = () => {
                         <div class="col-12 col-lg-3 col-md-5 text-start text-sm-end">
                             <label for="">
                                 <span class="text-danger me-1">*</span>
-                                <span :class="{ 'text-danger': errors.status_id }">Tình trạng</span>
+                                <span :class="{ 'text-danger': errors.status }">Tình trạng</span>
                             </label>
                         </div>
                         <div class="col-12 col-lg-5 col-md-7">
                             <a-select show-search placeholder="Tình trạng" style="width: 100%" :options="status"
-                                :filter-option="filterOption" allow-clear v-model:value="formData.status_id"
-                                :class="{ 'select-danger': errors.status_id }">
+                                :filter-option="filterOption" allow-clear v-model:value="formData.status"
+                                :class="{ 'select-danger': errors.status }">
                             </a-select>
                             <div class=" w-100"></div>
-                            <small v-if="errors.status_id" class="text-danger">{{ errors.status_id[0] }}</small>
+                            <small v-if="errors.status" class="text-danger">{{ errors.status[0] }}</small>
                         </div>
                     </div>
                     <!-- Họ và tên -->
@@ -249,26 +239,6 @@ const handleUpdateUser = () => {
                                 :class="{ 'input-danger': errors.password }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.password" class="text-danger">{{ errors.password[0] }}</small>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12 col-sm-3 text-start text-sm-end">
-                            <label for="">
-                                <span>Lần đăng nhập gần đây</span>
-                            </label>
-                        </div>
-                        <div class="col-12 col-sm-5">
-                            <span>{{ formData.login_at }}</span>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12 col-sm-3 text-start text-sm-end">
-                            <label for="">
-                                <span>Lần đổi mật khẩu gần đây</span>
-                            </label>
-                        </div>
-                        <div class="col-12 col-sm-5">
-                            <span>{{ formData.change_password_at }}</span>
                         </div>
                     </div>
                 </div>

@@ -5,9 +5,10 @@ import { useMenuAdmin } from '@/stores/use-menu-admin.js';
 import axios from 'axios';
 import { Modal } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-// import TheLoadingSpinner from '@/components/TheLoadingSpinner.vue';
+import router from '@/router';
+import TheLoadingSpinner from '@/components/TheLoadingSpinner.vue';
 
-// const isLoading = ref(true);
+const isLoading = ref(true);
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -52,65 +53,65 @@ const columns = [
 //Begin: Danh sách người dùng
 const users = ref([])
 const getUsers = () => {
-    users.value = [
-        { id: 1, email: 'NTA@gmail.com', fullname: 'Nguyễn Văn A', role_id: 1, status: 1 },
-        { id: 2, email: 'TTB@gmail.com', fullname: 'Trần Thị B', role_id: 2, status: 1 },
-        { id: 3, email: 'LVC@gmail.com', fullname: 'Lê Văn C', role_id: 3, status: 0 },
-    ]
-    // axios.get(`${API_URL}/admin/users`, {
-    //     headers:
-    //     {
-    //         Authorization: `Bearer ${localStorage.getItem('token')}`
-    //     }
-    // })
-    //     .then((response) => {
-    //         users.value = response.data
-    //         // console.log(response);
-    //     })
-    //     .catch((error) => {
-    //         message.error('Lỗi khi lấy danh sách người dùng!')
-    //         console.log(error)
-    //     })
-    //     .finally(() => {
-    //         isLoading.value = false
-    //     });
+    axios.get(`${API_URL}/admin/users`, {
+        headers:
+        {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+        .then((response) => {
+            users.value = response.data
+            // console.log(response);
+        })
+        .catch((error) => {
+            message.error('Lỗi khi lấy danh sách người dùng!')
+            console.log(error)
+        })
+        .finally(() => {
+            isLoading.value = false
+        });
 }
 getUsers()
 // End: Danh sách người dùng
 
 //Begin: Xoá người dùng
-// const handleDeleteUser = (id) => {
-//     Modal.confirm({
-//         title: 'Xác nhận xoá người dùng',
-//         content: 'Bạn có chắc chắn muốn xóa người dùng này?',
-//         okText: 'Xoá',
-//         cancelText: 'Huỷ',
-//         onOk: () => {
-//             axios.delete(`${API_URL}/admin/users/${id}`, {
-//                 headers:
-//                 {
-//                     Authorization: `Bearer ${localStorage.getItem('token')}`
-//                 }
-//             })
-//                 .then((response) => {
-//                     if (response.status === 200) {
-//                         getUsers()
-//                         message.success('Xoá người dùng thành công!')
-//                     }
-//                 })
-//                 .catch((error) => {
-//                     console.log(error);
-//                 })
-//         },
-//         onCancel: () => { },
-//     });
-// }
+const handleDeleteUser = (id) => {
+    Modal.confirm({
+        title: 'Xác nhận xoá người dùng',
+        content: 'Bạn có chắc chắn muốn xóa người dùng này?',
+        okText: 'Xoá',
+        cancelText: 'Huỷ',
+        onOk: () => {
+            axios.delete(`${API_URL}/admin/users/${id}`, {
+                headers:
+                {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+                .then((response) => {
+                    if (response.status === 200) {
+                        getUsers()
+                        message.success('Xoá người dùng thành công!')
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                })
+        },
+        onCancel: () => { },
+    });
+}
 // End: Xoá người dùng
+
+const handleUpdateUser = (id) => {
+    // Chuyển hướng đến trang cập nhật người 
+    router.push({ name: 'admin-users-update', params: { id } });
+}
 
 </script>
 
 <template>
-    <!-- <TheLoadingSpinner v-if="isLoading" /> -->
+    <TheLoadingSpinner v-if="isLoading" />
     <a-card title="Tài khoản" style="width: 100%">
         <!-- Button create -->
         <div class="row mb-3">
@@ -168,11 +169,9 @@ getUsers()
 
                         <!-- Begin: Action -->
                         <template v-if="column.key === 'action'">
-                            <router-link :to="{ name: 'admin-users-update', params: { id: record.id } }">
-                                <a-button type="primary" class="mb-2 me-sm-2">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a-button>
-                            </router-link>
+                            <a-button type="primary" class="mb-2 me-sm-2" @click="handleUpdateUser(record.id)">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a-button>
                             <a-button type="primary" danger @click="handleDeleteUser(record.id)">
                                 <i class="fa-solid fa-trash"></i>
                             </a-button>
