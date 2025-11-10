@@ -1,7 +1,8 @@
-
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import {
+    Descriptions,
+    DescriptionsItem,
     Tabs,
     TabPane,
     Steps,
@@ -66,11 +67,34 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 import './assets/main.css'
 
+import VChart from 'vue-echarts'
+import { use } from 'echarts/core'
+
+// Import vue charts
+import "echarts";
+import { LineChart, BarChart, PieChart } from 'echarts/charts'
+import {
+    TitleComponent,
+    TooltipComponent,
+    LegendComponent,
+    GridComponent
+} from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+
+// Đăng ký các component
+use([
+    CanvasRenderer,
+    LineChart,
+    BarChart,
+    PieChart,
+    TitleComponent,
+    TooltipComponent,
+    LegendComponent,
+    GridComponent
+])
+
 const app = createApp(App)
 const pinia = createPinia()
-app.use(pinia)
-app.use(router)
-app.mount('#app')
 
 // Begin: Register Ant Design Vue components
 app.use(Dropdown)
@@ -84,6 +108,9 @@ app.use(Menu)
 app.use(Card)
 app.use(Table)
 app.use(Avatar)
+
+app.use(Descriptions)
+app.use(DescriptionsItem)
 
 app.use(Tabs)
 app.use(TabPane)
@@ -134,4 +161,9 @@ app.use(Divider)
 // End: Register Ant Design Vue components
 
 app.config.globalProperties.$message = message;
+app.component('v-chart', VChart)
+
+app.use(pinia)
+app.use(router)
+app.mount('#app')
 

@@ -28,20 +28,28 @@ watch(
             </router-link>
         </a-menu-item>
 
+        <!-- Quản lí đơn hàng -->
+        <a-menu-item key="admin-orders">
+            <router-link :to="{ name: 'admin-orders' }" class="text-decoration-none text-dark">
+                <i class="fa-solid fa-shopping-cart me-1"></i>
+                <span> Quản lí đơn hàng</span>
+            </router-link>
+        </a-menu-item>
+
+        <!-- Quản lí khuyến mãi -->
+        <a-menu-item key="admin-promotions">
+            <router-link :to="{ name: 'admin-promotions' }" class="text-decoration-none text-dark">
+                <i class="fa-solid fa-tags me-1"></i>
+                <span>Quản lí khuyến mãi</span>
+            </router-link>
+        </a-menu-item>
+
         <!-- Begin: Quản lí sản phẩm -->
         <a-sub-menu key="product-management">
             <template #icon>
                 <i class="fa-solid fa-box"></i>
             </template>
             <template #title>Quản lí sản phẩm</template>
-
-            <!-- Quản lí đơn hàng -->
-            <a-menu-item key="admin-orders">
-                <router-link :to="{ name: 'admin-orders' }" class="text-decoration-none text-dark">
-                    <i class="fa-solid fa-shopping-cart me-1"></i>
-                    <span>Đơn hàng</span>
-                </router-link>
-            </a-menu-item>
 
             <!-- Quản lí áo thun -->
             <a-menu-item key="admin-products">
@@ -64,14 +72,6 @@ watch(
                 <router-link :to="{ name: 'admin-colors' }" class="text-decoration-none text-dark">
                     <i class="fa-solid fa-palette me-1"></i>
                     <span>Màu sắc</span>
-                </router-link>
-            </a-menu-item>
-
-            <!-- Quản lí khuyến mãi -->
-            <a-menu-item key="admin-promotions">
-                <router-link :to="{ name: 'admin-promotions' }" class="text-decoration-none text-dark">
-                    <i class="fa-solid fa-tags me-1"></i>
-                    <span>Khuyến mãi</span>
                 </router-link>
             </a-menu-item>
         </a-sub-menu>

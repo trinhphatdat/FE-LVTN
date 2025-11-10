@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 // Dữ liệu mẫu - sau này sẽ lấy từ API
 const statistics = ref({
@@ -8,54 +8,92 @@ const statistics = ref({
     totalProducts: 156,
 });
 
-const recentOrders = ref([
-    { id: 'ORD001', customer: 'Nguyễn Văn A', total: 450000, status: 'completed', date: '03-11-2025' },
-    { id: 'ORD002', customer: 'Trần Thị B', total: 320000, status: 'pending', date: '03-11-2025' },
-    { id: 'ORD003', customer: 'Lê Văn C', total: 890000, status: 'processing', date: '02-11-2025' },
-    { id: 'ORD004', customer: 'Phạm Thị D', total: 560000, status: 'completed', date: '02-11-2025' },
-    { id: 'ORD005', customer: 'Hoàng Văn E', total: 720000, status: 'shipping', date: '01-11-2025' }
+// Dữ liệu doanh thu theo tháng
+const monthlyRevenue = ref([
+    { month: 'T1', revenue: 8500000 },
+    { month: 'T2', revenue: 9200000 },
+    { month: 'T3', revenue: 11000000 },
+    { month: 'T4', revenue: 10500000 },
+    { month: 'T5', revenue: 12300000 },
+    { month: 'T6', revenue: 13800000 },
+    { month: 'T7', revenue: 15200000 },
+    { month: 'T8', revenue: 14500000 },
+    { month: 'T9', revenue: 13000000 },
+    { month: 'T10', revenue: 14800000 },
+    { month: 'T11', revenue: 16500000 },
+    { month: 'T12', revenue: 15800000 },
 ]);
 
-const topProducts = ref([
-    { name: 'Áo thun Basic Trắng', sold: 234, revenue: 11700000 },
-    { name: 'Áo thun Polo Đen', sold: 189, revenue: 9450000 },
-    { name: 'Áo thun Oversize Xám', sold: 156, revenue: 7800000 },
-    { name: 'Áo thun Form Rộng Nâu', sold: 142, revenue: 7100000 },
-    { name: 'Áo thun Cotton Xanh Navy', sold: 128, revenue: 6400000 }
-]);
-
-const columns = [
-    { title: 'Mã đơn', dataIndex: 'id', key: 'id' },
-    { title: 'Khách hàng', dataIndex: 'customer', key: 'customer' },
-    { title: 'Tổng tiền', dataIndex: 'total', key: 'total' },
-    { title: 'Trạng thái', dataIndex: 'status', key: 'status' },
-    { title: 'Ngày đặt', dataIndex: 'date', key: 'date' }
-];
+// Cấu hình biểu đồ
+const chartOption = computed(() => ({
+    title: {
+        text: 'Doanh thu theo tháng',
+        left: 'center',
+        textStyle: {
+            fontSize: 16,
+            fontWeight: 'normal'
+        }
+    },
+    tooltip: {
+        trigger: 'axis',
+        formatter: (params) => {
+            const value = params[0].value;
+            return `${params[0].name}<br/>Doanh thu: ${formatCurrency(value)}`;
+        }
+    },
+    xAxis: {
+        type: 'category',
+        data: monthlyRevenue.value.map(item => item.month),
+        axisLabel: {
+            interval: 0
+        }
+    },
+    yAxis: {
+        type: 'value',
+        axisLabel: {
+            formatter: (value) => {
+                return (value / 1000000) + 'M';
+            }
+        }
+    },
+    series: [
+        {
+            name: 'Doanh thu',
+            type: 'line',
+            data: monthlyRevenue.value.map(item => item.revenue),
+            smooth: true,
+            lineStyle: {
+                color: '#1890ff',
+                width: 3
+            },
+            itemStyle: {
+                color: '#1890ff'
+            },
+            areaStyle: {
+                color: {
+                    type: 'linear',
+                    x: 0,
+                    y: 0,
+                    x2: 0,
+                    y2: 1,
+                    colorStops: [
+                        { offset: 0, color: 'rgba(24, 144, 255, 0.3)' },
+                        { offset: 1, color: 'rgba(24, 144, 255, 0)' }
+                    ]
+                }
+            }
+        }
+    ],
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    }
+}));
 
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
-};
-
-const getStatusColor = (status) => {
-    const colors = {
-        completed: 'success',
-        pending: 'warning',
-        processing: 'processing',
-        shipping: 'cyan',
-        cancelled: 'error'
-    };
-    return colors[status] || 'default';
-};
-
-const getStatusText = (status) => {
-    const texts = {
-        completed: 'Hoàn thành',
-        pending: 'Chờ xử lý',
-        processing: 'Đang xử lý',
-        shipping: 'Đang giao',
-        cancelled: 'Đã hủy'
-    };
-    return texts[status] || status;
 };
 </script>
 
@@ -63,10 +101,10 @@ const getStatusText = (status) => {
     <div class="dashboard-container">
         <h3 class="mb-4">Dashboard</h3>
 
-        <!-- Statistics Cards -->
-        <a-row :gutter="[16, 16]" class="mb-4">
-            <a-col :xs="24" :sm="12" :lg="6">
-                <a-card>
+        <!-- Thống kê -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6 col-lg-4">
+                <a-card class="card">
                     <a-statistic title="Tổng doanh thu" :value="statistics.totalRevenue" :precision="0" suffix="₫"
                         :value-style="{ color: '#3f8600' }">
                         <template #prefix>
@@ -74,10 +112,10 @@ const getStatusText = (status) => {
                         </template>
                     </a-statistic>
                 </a-card>
-            </a-col>
+            </div>
 
-            <a-col :xs="24" :sm="12" :lg="6">
-                <a-card>
+            <div class="col-12 col-md-6 col-lg-4">
+                <a-card class="card">
                     <a-statistic title="Tổng đơn hàng" :value="statistics.totalOrders"
                         :value-style="{ color: '#1890ff' }">
                         <template #prefix>
@@ -85,10 +123,10 @@ const getStatusText = (status) => {
                         </template>
                     </a-statistic>
                 </a-card>
-            </a-col>
+            </div>
 
-            <a-col :xs="24" :sm="12" :lg="6">
-                <a-card>
+            <div class="col-12 col-md-6 col-lg-4">
+                <a-card class="card">
                     <a-statistic title="Tổng sản phẩm" :value="statistics.totalProducts"
                         :value-style="{ color: '#cf1322' }">
                         <template #prefix>
@@ -96,39 +134,36 @@ const getStatusText = (status) => {
                         </template>
                     </a-statistic>
                 </a-card>
-            </a-col>
-        </a-row>
+            </div>
+        </div>
 
-        <!-- Charts and Lists -->
-        <a-row :gutter="[16, 16]">
-            <!-- Recent Orders -->
-            <a-col :xs="24" :lg="14">
-                <a-card title="Đơn hàng gần đây" :bordered="false">
-                    <a-table :columns="columns" :data-source="recentOrders" :pagination="false" :scroll="{ x: 600 }">
-                        <template #bodyCell="{ column, record }">
-                            <template v-if="column.key === 'total'">
-                                <span class="fw-bold">{{ formatCurrency(record.total) }}</span>
-                            </template>
-                            <template v-if="column.key === 'status'">
-                                <a-tag :color="getStatusColor(record.status)">
-                                    {{ getStatusText(record.status) }}
-                                </a-tag>
-                            </template>
-                        </template>
-                    </a-table>
-                    <div class="text-center mt-3">
-                        <a-button type="link">Xem tất cả đơn hàng →</a-button>
-                    </div>
+        <!-- Biểu đồ doanh thu -->
+        <div class="row">
+            <div class="col-12">
+                <a-card>
+                    <v-chart class="chart" :option="chartOption" autoresize />
                 </a-card>
-            </a-col>
-
-        </a-row>
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .dashboard-container {
     padding: 24px;
+}
+
+.chart {
+    height: 400px;
 }
 
 :deep(.ant-statistic-title) {
@@ -139,14 +174,5 @@ const getStatusText = (status) => {
 :deep(.ant-statistic-content) {
     font-size: 24px;
     font-weight: 600;
-}
-
-:deep(.ant-card-head-title) {
-    font-size: 18px;
-    font-weight: 600;
-}
-
-:deep(.ant-table) {
-    font-size: 14px;
 }
 </style>

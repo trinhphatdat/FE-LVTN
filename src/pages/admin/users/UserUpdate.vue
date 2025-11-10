@@ -2,14 +2,14 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
-import { useMenuAdminAdmin } from '@/stores/use-menu-admin.js';
+import { useMenuAdmin } from '@/stores/use-menu-admin.js';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const store = useMenuAdminAdmin();
+const store = useMenuAdmin();
 store.onSelectedKeys(['admin-users']);
 
 const router = useRouter()

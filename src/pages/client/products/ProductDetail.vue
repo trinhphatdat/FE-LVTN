@@ -9,6 +9,7 @@ import { message } from 'ant-design-vue';
 import axios from 'axios';
 import { useUserStore } from '@/stores/use-user-store';
 import { storeToRefs } from 'pinia';
+import { StarFilled } from '@ant-design/icons-vue';
 
 const isLoading = ref(false);
 const API_URL = import.meta.env.VITE_API_URL;
@@ -270,13 +271,21 @@ const toggleSizeGuide = () => {
                 <div class="col-lg-4 col-md-12 col-12">
                     <div class="productPage-detail">
                         <!-- Begin: Tên sản phẩm -->
-                        <div class="product-title">
-                            <h1 id="product-title">{{ product.title }}</h1>
+                        <div class="row product-title">
+                            <div class="col-10">
+                                <h1 id="product-title">{{ product.title }}</h1>
+                            </div>
+                            <div class="col-2 d-flex align-items-start justify-content-end">
+                                <span style="font-size: 18px;" class=" d-flex align-items-center">
+                                    <StarFilled style="color: #faad14;" />
+                                    <span class="ms-1" style="font-weight: 600;">{{ averageRating }}</span>
+                                </span>
+                            </div>
                         </div>
                         <!-- End: Tên sản phẩm -->
 
                         <!-- Begin: Thương hiệu -->
-                        <div class="product-brand mb-2">
+                        <div class=" product-brand mb-2">
                             <span class="text-muted">Thương hiệu: </span>
                             <span class="fw-bold">{{ product.brand }}</span>
                         </div>

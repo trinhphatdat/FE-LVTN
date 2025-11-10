@@ -6,7 +6,6 @@ import { Modal, message } from 'ant-design-vue';
 const orders = ref([
     {
         id: 1,
-        orderCode: 'ORD001',
         customerName: 'Nguyễn Văn A',
         phone: '0123456789',
         email: 'nguyenvana@email.com',
@@ -22,7 +21,6 @@ const orders = ref([
     },
     {
         id: 2,
-        orderCode: 'ORD002',
         customerName: 'Trần Thị B',
         phone: '0987654321',
         email: 'tranthib@email.com',
@@ -37,7 +35,6 @@ const orders = ref([
     },
     {
         id: 3,
-        orderCode: 'ORD003',
         customerName: 'Lê Văn C',
         phone: '0369852147',
         email: 'levanc@email.com',
@@ -53,7 +50,6 @@ const orders = ref([
     },
     {
         id: 4,
-        orderCode: 'ORD004',
         customerName: 'Phạm Thị D',
         phone: '0912345678',
         email: 'phamthid@email.com',
@@ -68,7 +64,6 @@ const orders = ref([
     },
     {
         id: 5,
-        orderCode: 'ORD005',
         customerName: 'Hoàng Văn E',
         phone: '0978123456',
         email: 'hoangvane@email.com',
@@ -92,7 +87,7 @@ const isModalVisible = ref(false);
 
 // Columns definition
 const columns = [
-    { title: 'Mã đơn', dataIndex: 'orderCode', key: 'orderCode', width: 100 },
+    { title: 'Mã đơn', dataIndex: 'id', key: 'id', width: 100 },
     { title: 'Khách hàng', dataIndex: 'customerName', key: 'customerName', width: 150 },
     { title: 'Số điện thoại', dataIndex: 'phone', key: 'phone', width: 120 },
     { title: 'Tổng tiền', dataIndex: 'totalAmount', key: 'totalAmount', width: 130 },
@@ -219,64 +214,82 @@ const deleteOrder = (order) => {
         <h3 class="mb-4">Quản lý đơn hàng</h3>
 
         <!-- Statistics Cards -->
-        <a-row :gutter="[16, 16]" class="mb-4">
-            <a-col :xs="12" :sm="8" :md="4">
-                <a-card>
-                    <a-statistic title="Tổng đơn" :value="statistics.total" :value-style="{ color: '#1890ff' }" />
-                </a-card>
-            </a-col>
-            <a-col :xs="12" :sm="8" :md="4">
-                <a-card>
-                    <a-statistic title="Chờ xử lý" :value="statistics.pending" :value-style="{ color: '#faad14' }" />
-                </a-card>
-            </a-col>
-            <a-col :xs="12" :sm="8" :md="4">
-                <a-card>
-                    <a-statistic title="Đang xử lý" :value="statistics.processing"
-                        :value-style="{ color: '#1890ff' }" />
-                </a-card>
-            </a-col>
-            <a-col :xs="12" :sm="8" :md="4">
-                <a-card>
-                    <a-statistic title="Đang giao" :value="statistics.shipping" :value-style="{ color: '#13c2c2' }" />
-                </a-card>
-            </a-col>
-            <a-col :xs="12" :sm="8" :md="4">
-                <a-card>
-                    <a-statistic title="Hoàn thành" :value="statistics.completed" :value-style="{ color: '#52c41a' }" />
-                </a-card>
-            </a-col>
-            <a-col :xs="12" :sm="8" :md="4">
-                <a-card>
-                    <a-statistic title="Đã hủy" :value="statistics.cancelled" :value-style="{ color: '#f5222d' }" />
-                </a-card>
-            </a-col>
-        </a-row>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center">
+                    <div class="card-body p-3">
+                        <div class="stat-title">Tổng đơn</div>
+                        <div class="stat-value text-primary">{{ statistics.total }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center">
+                    <div class="card-body p-3">
+                        <div class="stat-title">Chờ xử lý</div>
+                        <div class="stat-value text-warning">{{ statistics.pending }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center">
+                    <div class="card-body p-3">
+                        <div class="stat-title">Đang xử lý</div>
+                        <div class="stat-value text-info">{{ statistics.processing }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center">
+                    <div class="card-body p-3">
+                        <div class="stat-title">Đang giao</div>
+                        <div class="stat-value text-cyan">{{ statistics.shipping }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center">
+                    <div class="card-body p-3">
+                        <div class="stat-title">Hoàn thành</div>
+                        <div class="stat-value text-success">{{ statistics.completed }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card text-center">
+                    <div class="card-body p-3">
+                        <div class="stat-title">Đã hủy</div>
+                        <div class="stat-value text-danger">{{ statistics.cancelled }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Filters -->
-        <a-card class="mb-4">
-            <a-row :gutter="[16, 16]">
-                <a-col :xs="24" :sm="12" :md="8">
-                    <a-input-search v-model:value="searchText" placeholder="Tìm theo mã đơn, tên khách hàng, SĐT..."
-                        allow-clear />
-                </a-col>
-                <a-col :xs="24" :sm="12" :md="8">
-                    <a-select v-model:value="selectedStatus" style="width: 100%">
-                        <a-select-option value="all">Tất cả trạng thái</a-select-option>
-                        <a-select-option value="pending">Chờ xử lý</a-select-option>
-                        <a-select-option value="processing">Đang xử lý</a-select-option>
-                        <a-select-option value="shipping">Đang giao</a-select-option>
-                        <a-select-option value="completed">Hoàn thành</a-select-option>
-                        <a-select-option value="cancelled">Đã hủy</a-select-option>
-                    </a-select>
-                </a-col>
-            </a-row>
-        </a-card>
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <a-input-search v-model:value="searchText" enter-button="Search"
+                            placeholder="Tìm theo mã đơn, tên khách hàng, SĐT..." allow-clear />
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <a-select v-model:value="selectedStatus" style="width: 100%">
+                            <a-select-option value="all">Tất cả trạng thái</a-select-option>
+                            <a-select-option value="pending">Chờ xử lý</a-select-option>
+                            <a-select-option value="processing">Đang xử lý</a-select-option>
+                            <a-select-option value="shipping">Đang giao</a-select-option>
+                            <a-select-option value="completed">Hoàn thành</a-select-option>
+                            <a-select-option value="cancelled">Đã hủy</a-select-option>
+                        </a-select>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Orders Table -->
         <a-card>
-            <a-table :columns="columns" :data-source="filteredOrders" :loading="loading" :scroll="{ x: 1200 }"
-                :pagination="{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `Tổng ${total} đơn hàng` }">
+            <a-table :columns="columns" :data-source="filteredOrders" :loading="loading" :scroll="{ x: 1200 }">
                 <template #bodyCell="{ column, record }">
                     <template v-if="column.key === 'totalAmount'">
                         <span class="fw-bold text-success">{{ formatCurrency(record.totalAmount) }}</span>
@@ -296,13 +309,14 @@ const deleteOrder = (order) => {
 
                     <template v-if="column.key === 'action'">
                         <a-space>
-                            <a-tooltip title="Xem chi tiết">
+                            <a-tooltip title="Xem chi tiết" class="me-2">
                                 <a-button type="primary" size="small" @click="viewOrderDetails(record)">
                                     <i class="fa-solid fa-eye"></i>
                                 </a-button>
                             </a-tooltip>
 
-                            <a-dropdown v-if="record.status !== 'completed' && record.status !== 'cancelled'">
+                            <a-dropdown v-if="record.status !== 'completed' && record.status !== 'cancelled'"
+                                class="me-2">
                                 <template #overlay>
                                     <a-menu>
                                         <a-menu-item v-if="record.status === 'pending'"
@@ -346,7 +360,7 @@ const deleteOrder = (order) => {
             <div v-if="selectedOrder">
                 <a-descriptions bordered :column="2">
                     <a-descriptions-item label="Mã đơn hàng">
-                        <strong>{{ selectedOrder.orderCode }}</strong>
+                        <strong>{{ selectedOrder.id }}</strong>
                     </a-descriptions-item>
                     <a-descriptions-item label="Trạng thái">
                         <a-tag :color="getStatusColor(selectedOrder.status)">
@@ -376,7 +390,6 @@ const deleteOrder = (order) => {
                 </a-descriptions>
 
                 <a-divider>Sản phẩm</a-divider>
-
                 <a-table :columns="[
                     { title: 'Sản phẩm', dataIndex: 'productName', key: 'productName' },
                     { title: 'Size', dataIndex: 'size', key: 'size' },
@@ -408,12 +421,27 @@ const deleteOrder = (order) => {
     padding: 24px;
 }
 
-:deep(.ant-statistic-title) {
+.stat-title {
     font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
 }
 
-:deep(.ant-statistic-content) {
-    font-size: 20px;
+.stat-value {
+    font-size: 24px;
     font-weight: 600;
+}
+
+.text-cyan {
+    color: #13c2c2;
+}
+
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 </style>
