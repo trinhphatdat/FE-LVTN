@@ -59,6 +59,13 @@ watch(
                 </router-link>
             </a-menu-item>
 
+            <a-menu-item key="admin-brands">
+                <router-link :to="{ name: 'admin-brands' }" class="text-decoration-none text-dark">
+                    <i class="fa-solid fa-copyright me-1"></i>
+                    <span>Thương hiệu</span>
+                </router-link>
+            </a-menu-item>
+
             <!-- Quản lí size -->
             <a-menu-item key="admin-sizes">
                 <router-link :to="{ name: 'admin-sizes' }" class="text-decoration-none text-dark">

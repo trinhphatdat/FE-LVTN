@@ -111,6 +111,22 @@ const admin = [
                 name: 'admin-promotions-update',
                 component: () => import('@/pages/admin/promotions/PromotionUpdate.vue'),
             },
+            //Quản lí thương hiệu
+            {
+                path: 'brands',
+                name: 'admin-brands',
+                component: () => import('@/pages/admin/brands/BrandsIndex.vue'),
+            },
+            {
+                path: 'brands/create',
+                name: 'admin-brands-create',
+                component: () => import('@/pages/admin/brands/BrandCreate.vue'),
+            },
+            {
+                path: 'brands/:id/update',
+                name: 'admin-brands-update',
+                component: () => import('@/pages/admin/brands/BrandUpdate.vue'),
+            },
         ]
     }
 ]

@@ -113,7 +113,7 @@ const handleDelete = (id) => {
         okText: 'Xoá',
         cancelText: 'Huỷ',
         onOk: () => {
-            axios.delete(`${API_URL}/admin/products` + `/${id}`, {
+            axios.delete(`${API_URL}/admin/products/${id}`, {
                 headers:
                 {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
