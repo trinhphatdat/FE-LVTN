@@ -1,21 +1,64 @@
 <script setup>
 import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useMenuAdmin } from '@/stores/use-menu-admin.js';
 import axios from 'axios';
+import { message } from 'ant-design-vue';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const store = useMenuAdmin();
 store.onSelectedKeys(['admin-colors']);
 
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 
-const colors = reactive({
+const status = ref([
+    { label: 'Tạm khóa', value: 0 },
+    { label: 'Hoạt động', value: 1 },
+])
+
+const formData = reactive({
     name: '',
     hex_code: '',
-    status: ''
+    status: null,
 })
+const getColor = () => {
+    axios.get(`${API_URL}/admin/colors/${route.params.id}`, {
+        headers:
+        {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+        .then((response) => {
+            formData.name = response.data.name
+            formData.hex_code = response.data.hex_code
+            formData.status = response.data.status
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+}
+getColor();
+
 const errors = ref({})
-const handleSubmit = () => { }
+const handleSubmit = () => {
+    axios.put(`${API_URL}/admin/colors/${route.params.id}`, formData, {
+        headers:
+        {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+        .then((response) => {
+            console.log(response);
+            message.success("Sửa thành công")
+            router.push({ name: 'admin-colors' })
+        })
+        .catch((error) => {
+            errors.value = error.response.data.errors
+            // console.log(error);
+        });
+}
 </script>
 <template>
     <a-form @submit.prevent="handleSubmit">
@@ -30,8 +73,8 @@ const handleSubmit = () => { }
                                 <span :class="{ 'text-danger': errors.name }">Tên màu sắc</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-input placeholder="Tên màu sắc" allow-clear v-model:value="colors.name"
+                        <div class="col-12 col-sm-4">
+                            <a-input placeholder="Tên màu sắc" allow-clear v-model:value="formData.name"
                                 :class="{ 'input-danger': errors.name }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.name" class="text-danger">{{ errors.name[0] }}</small>
@@ -45,8 +88,8 @@ const handleSubmit = () => { }
                                 <span :class="{ 'text-danger': errors.hex_code }">Tên mã màu</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-input placeholder="Tên mã màu" allow-clear v-model:value="colors.hex_code"
+                        <div class="col-12 col-sm-4">
+                            <a-input placeholder="Tên mã màu" allow-clear v-model:value="formData.hex_code"
                                 :class="{ 'input-danger': errors.hex_code }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.hex_code" class="text-danger">{{ errors.hex_code[0] }}</small>
@@ -60,9 +103,9 @@ const handleSubmit = () => { }
                                 <span :class="{ 'text-danger': errors.status }">Tình trạng</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-select v-model:value="colors.status" placeholder="Chọn tình trạng" style="width: 100%;"
-                                :class="{ 'select-danger': errors.status }" />
+                        <div class="col-12 col-sm-4">
+                            <a-select v-model:value="formData.status" placeholder="Chọn tình trạng" style="width: 100%;"
+                                :options="status" :class="{ 'select-danger': errors.status }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.status" class="text-danger">{{ errors.status[0] }}</small>
                         </div>

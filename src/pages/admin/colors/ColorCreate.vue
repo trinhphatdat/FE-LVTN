@@ -1,3 +1,40 @@
+<script setup>
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { useMenuAdmin } from '@/stores/use-menu-admin.js';
+import { message } from 'ant-design-vue';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+const store = useMenuAdmin();
+store.onSelectedKeys(['admin-colors']);
+
+const router = useRouter()
+
+const formData = reactive({
+    name: '',
+    hex_code: '',
+    status: null,
+})
+const status = ref([
+    { label: 'Hoạt động', value: 1 },
+    { label: 'Ngừng hoạt động', value: 0 },
+])
+const createColor = () => {
+    axios.post(`${API_URL}/colors`, formData)
+        .then((response) => {
+            console.log(response);
+            message.success("Thêm thành công")
+            router.push({ name: 'admin-colors' })
+        })
+        .catch((error) => {
+            errors.value = error.response.data.errors
+            // console.log(error);
+        });
+}
+const errors = ref({})
+</script>
 <template>
     <form @submit.prevent="createColor">
         <a-card title="Tạo mới màu sắc" style="width: 100%;">
@@ -11,8 +48,8 @@
                                 <span :class="{ 'text-danger': errors.name }">Tên màu sắc</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-input placeholder="Tên màu sắc" allow-clear v-model:value="colors.name"
+                        <div class="col-12 col-sm-4">
+                            <a-input placeholder="Nhập tên màu sắc" allow-clear v-model:value="formData.name"
                                 :class="{ 'input-danger': errors.name }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.name" class="text-danger">{{ errors.name[0] }}</small>
@@ -23,11 +60,11 @@
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label for="">
                                 <span class="text-danger me-1">*</span>
-                                <span :class="{ 'text-danger': errors.hex_code }">Tên mã màu</span>
+                                <span :class="{ 'text-danger': errors.hex_code }">Mã màu</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-input placeholder="Tên mã màu" allow-clear v-model:value="colors.hex_code"
+                        <div class="col-12 col-sm-4">
+                            <a-input placeholder="Nhập mã màu" allow-clear v-model:value="formData.hex_code"
                                 :class="{ 'input-danger': errors.hex_code }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.hex_code" class="text-danger">{{ errors.hex_code[0] }}</small>
@@ -41,9 +78,9 @@
                                 <span :class="{ 'text-danger': errors.status }">Tình trạng</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-select v-model:value="colors.status" placeholder="Chọn tình trạng" style="width: 100%;"
-                                :class="{ 'select-danger': errors.status }" />
+                        <div class="col-12 col-sm-4">
+                            <a-select v-model:value="formData.status" placeholder="Chọn tình trạng" style="width: 100%;"
+                                :options="status" :class="{ 'select-danger': errors.status }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.status" class="text-danger">{{ errors.status[0] }}</small>
                         </div>
@@ -65,54 +102,3 @@
         </a-card>
     </form>
 </template>
-
-<script setup>
-import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
-import { useMenuAdmin } from '@/stores/use-menu-admin.js';
-import { message } from 'ant-design-vue';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL;
-
-const store = useMenuAdmin();
-store.onSelectedKeys(['admin-colors']);
-
-const router = useRouter()
-
-const colors = reactive({
-    name: '',
-    hex_code: '',
-    status: ''
-})
-const createColor = () => {
-    axios.post(`${API_URL}/colors`, colors)
-        .then((response) => {
-            console.log(response);
-            if (response.status === 200) {
-                message.success("Thêm thành công")
-                router.push({ name: 'admin-colors' })
-            }
-        })
-        .catch((error) => {
-            errors.value = error.response.data.errors
-            // console.log(error);
-        });
-}
-const errors = ref({})
-// const filterOption = (input, option) => {
-//     return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-// };
-
-</script>
-
-<style scoped>
-.select-danger {
-    border: 1px solid red;
-    border-radius: 7px;
-}
-
-.input-danger {
-    border-color: red;
-}
-</style>

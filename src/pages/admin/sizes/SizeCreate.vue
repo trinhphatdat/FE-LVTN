@@ -56,7 +56,7 @@ const errors = ref({})
                                 <span :class="{ 'text-danger': errors.name }">Tên kích cỡ</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-3">
+                        <div class="col-12 col-sm-4">
                             <a-input placeholder="Tên kích cỡ" allow-clear v-model:value="formData.name"
                                 :class="{ 'input-danger': errors.name }" />
                             <div class=" w-100"></div>
@@ -71,7 +71,7 @@ const errors = ref({})
                                 <span :class="{ 'text-danger': errors.length }">Dài áo (cm)</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-3">
+                        <div class="col-12 col-sm-4">
                             <a-input-number min="0" style="width: 100%" placeholder="Nhập dài áo" allow-clear
                                 v-model:value="formData.length" :class="{ 'input-danger': errors.length }" />
                             <div class=" w-100"></div>
@@ -86,7 +86,7 @@ const errors = ref({})
                                 <span :class="{ 'text-danger': errors.width }">Rộng áo (cm)</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-3">
+                        <div class="col-12 col-sm-4">
                             <a-input-number min="0" style="width: 100%" placeholder="Nhập rộng áo" allow-clear
                                 v-model:value="formData.width" :class="{ 'input-danger': errors.width }" />
                             <div class=" w-100"></div>
@@ -101,7 +101,7 @@ const errors = ref({})
                                 <span :class="{ 'text-danger': errors.sleeve }">Dài tay (cm)</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-3">
+                        <div class="col-12 col-sm-4">
                             <a-input-number min="0" style="width: 100%" placeholder="Nhập dài tay" allow-clear
                                 v-model:value="formData.sleeve" :class="{ 'input-danger': errors.sleeve }" />
                             <div class=" w-100"></div>
@@ -116,7 +116,7 @@ const errors = ref({})
                                 <span :class="{ 'text-danger': errors.status }">Tình trạng</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-3">
+                        <div class="col-12 col-sm-4">
                             <a-select v-model:value="formData.status" placeholder="Chọn tình trạng" style="width: 100%;"
                                 :options="status" :class="{ 'select-danger': errors.status }" />
                             <div class=" w-100"></div>

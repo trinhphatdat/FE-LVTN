@@ -4,51 +4,51 @@ import { useMenuAdmin } from '@/stores/use-menu-admin.js';
 import axios from 'axios';
 import { message } from 'ant-design-vue';
 import { Modal } from 'ant-design-vue';
-// import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const store = useMenuAdmin();
 store.onSelectedKeys(['admin-sizes']);
 
-const columns = [
-    {
-        title: '#',
-        key: 'index',
-        width: 50,
-    },
-    {
-        title: 'Tên kích cỡ',
-        dataIndex: 'name',
-        key: 'name',
-    },
-    {
-        title: 'Dài áo (cm)',
-        dataIndex: 'length',
-        key: 'length',
-    },
-    {
-        title: 'Ngang áo (cm)',
-        dataIndex: 'width',
-        key: 'width',
-    },
-    {
-        title: 'Dài tay (cm)',
-        dataIndex: 'sleeve',
-        key: 'sleeve',
-    },
-    {
-        title: 'Tình trạng',
-        dataIndex: 'status',
-        key: 'status',
-    },
-    {
-        title: 'Công cụ',
-        key: 'action',
-        fixed: 'right',
-        width: 150,
-    },
-]
+const columns =
+    [
+        {
+            title: '#',
+            key: 'index',
+            width: 50,
+        },
+        {
+            title: 'Tên kích cỡ',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: 'Dài áo (cm)',
+            dataIndex: 'length',
+            key: 'length',
+        },
+        {
+            title: 'Ngang áo (cm)',
+            dataIndex: 'width',
+            key: 'width',
+        },
+        {
+            title: 'Dài tay (cm)',
+            dataIndex: 'sleeve',
+            key: 'sleeve',
+        },
+        {
+            title: 'Tình trạng',
+            dataIndex: 'status',
+            key: 'status',
+        },
+        {
+            title: 'Công cụ',
+            key: 'action',
+            fixed: 'right',
+            width: 150,
+        },
+    ]
 
 const sizes = ref([]);
 const getSizes = () => {
@@ -82,6 +82,7 @@ const handleDelete = (id) => {
                 }
             })
                 .then((response) => {
+                    console.log(response);
                     getSizes()
                     message.success('Xoá kích cỡ thành công!')
                 })
@@ -129,7 +130,7 @@ const handleDelete = (id) => {
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a-button>
                             </router-link>
-                            <a-button type="primary" danger @click="handleDelete" class="me-2">
+                            <a-button type="primary" danger @click="handleDelete(record.id)" class="me-2">
                                 <i class="fa-solid fa-trash"></i>
                             </a-button>
                         </template>

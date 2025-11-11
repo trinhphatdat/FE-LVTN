@@ -29,10 +29,12 @@
                         </template>
                         <!-- End: Status -->
                         <template v-if="column.key === 'action'">
-                            <a-button type="primary" class="me-2" @click="handleUpdateUser(record.id)">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </a-button>
-                            <a-button type="primary" danger @click="handleDeleteUser(record.id)" class="me-2">
+                            <router-link :to="{ name: 'admin-roles-update', params: { id: record.id } }">
+                                <a-button type="primary" class="me-2">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a-button>
+                            </router-link>
+                            <a-button type="primary" danger @click="handleDelete(record.id)" class="me-2">
                                 <i class="fa-solid fa-trash"></i>
                             </a-button>
                         </template>
@@ -46,10 +48,8 @@
 import { ref } from 'vue';
 import { useMenuAdmin } from '@/stores/use-menu-admin.js';
 import axios from 'axios';
-import router from '@/router';
 import { Modal } from 'ant-design-vue';
-// import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
-// import { message } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -99,7 +99,7 @@ const getRoles = () => {
 }
 getRoles()
 
-const handleDeleteUser = (id) => {
+const handleDelete = (id) => {
     Modal.confirm({
         title: 'Xác nhận xoá',
         content: 'Bạn có chắc chắn muốn xoá vai trò này không?',
@@ -115,7 +115,8 @@ const handleDeleteUser = (id) => {
                 }
             })
                 .then((response) => {
-                    // message.success('Xoá vai trò thành công');
+                    console.log(response);
+                    message.success('Xoá vai trò thành công');
                     getRoles();
                 })
                 .catch((error) => {
@@ -123,15 +124,7 @@ const handleDeleteUser = (id) => {
                     console.error('Lỗi khi xoá vai trò:', error);
                 });
         },
-        onCancel() {
-            console.log('Hủy xoá vai trò');
-        },
+        onCancel() { }
     });
-}
-
-const status = ref([]);
-
-const handleUpdateUser = (id) => {
-    router.push({ name: 'admin-roles-update', params: { id } });
 }
 </script>
