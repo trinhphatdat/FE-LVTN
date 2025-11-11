@@ -91,11 +91,9 @@ const handleUpdateUser = () => {
         }
     })
         .then((response) => {
-            // console.log(response);
-            if (response.status === 200) {
-                message.success('Cập nhật tài khoản thành công')
-                router.push({ name: 'admin-users' })
-            }
+            console.log(response);
+            message.success('Cập nhật tài khoản thành công')
+            router.push({ name: 'admin-users' })
         })
         .catch((error) => {
             errors.value = error.response.data.errors

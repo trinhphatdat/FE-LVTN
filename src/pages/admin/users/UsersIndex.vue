@@ -104,7 +104,6 @@ const handleDeleteUser = (id) => {
 // End: Xoá người dùng
 
 const handleUpdateUser = (id) => {
-    // Chuyển hướng đến trang cập nhật người 
     router.push({ name: 'admin-users-update', params: { id } });
 }
 

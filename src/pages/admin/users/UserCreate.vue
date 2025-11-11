@@ -12,15 +12,19 @@ store.onSelectedKeys(['admin-users']);
 
 const router = useRouter()
 
-//danh sách tình trạng
 const status = ref([
     { label: 'Tạm khóa', value: 0 },
     { label: 'Hoạt động', value: 1 },
 ])
-const roles = ref([]); // danh sách vai trò
 
+const roles = ref([]);
 const getRoles = () => {
-    axios.get(`${API_URL}/admin/roles`)
+    axios.get(`${API_URL}/admin/roles`, {
+        headers:
+        {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
         .then((response) => {
             if (response.status === 200) {
                 roles.value = response.data.map(
@@ -42,17 +46,20 @@ const formData = reactive({
     email: '',
     phone_number: '',
     role_id: null,
-    status_id: null,
+    status: null,
     password: '',
     password_confirmation: '',
 })
 const handleCreateUser = () => {
-    axios.post(`${API_URL}/admin/users`, formData)
+    axios.post(`${API_URL}/admin/users`, formData, {
+        headers:
+        {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
         .then((response) => {
-            if (response.status === 200) {
-                message.success("Thêm thành công")
-                router.push({ name: 'admin-users' })
-            }
+            message.success("Thêm thành công")
+            router.push({ name: 'admin-users' })
         })
         .catch((error) => {
             errors.value = error.response.data.errors
@@ -92,16 +99,16 @@ const filterOption = (input, option) => {
                         <div class="col-12 col-lg-3 col-md-5 text-start text-sm-end">
                             <label for="">
                                 <span class="text-danger me-1">*</span>
-                                <span :class="{ 'text-danger': errors.status_id }">Tình trạng</span>
+                                <span :class="{ 'text-danger': errors.status }">Tình trạng</span>
                             </label>
                         </div>
                         <div class="col-12 col-lg-5 col-md-7">
                             <a-select show-search placeholder="Tình trạng" style="width: 100%" :options="status"
-                                :filter-option="filterOption" allow-clear v-model:value="formData.status_id"
-                                :class="{ 'select-danger': errors.status_id }">
+                                :filter-option="filterOption" allow-clear v-model:value="formData.status"
+                                :class="{ 'select-danger': errors.status }">
                             </a-select>
                             <div class=" w-100"></div>
-                            <small v-if="errors.status_id" class="text-danger">{{ errors.status_id[0] }}</small>
+                            <small v-if="errors.status" class="text-danger">{{ errors.status[0] }}</small>
                         </div>
                     </div>
                     <!-- Họ và tên -->

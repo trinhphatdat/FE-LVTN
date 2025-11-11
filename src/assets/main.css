@@ -84,6 +84,15 @@ a.btn,
     border-radius: 30px;
 }
 
+.select-danger {
+    border: 1px solid red;
+    border-radius: 7px;
+}
+
+.input-danger {
+    border-color: red;
+}
+
 .table a.btn {
     padding: 10px 18px 10px;
 }
