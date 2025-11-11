@@ -1,3 +1,48 @@
+<script setup>
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { useMenuAdmin } from '@/stores/use-menu-admin.js';
+import { message } from 'ant-design-vue';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+const store = useMenuAdmin();
+store.onSelectedKeys(['admin-sizes']);
+
+const router = useRouter()
+
+const status = ref([
+    { label: 'Hoạt động', value: 1 },
+    { label: 'Ngừng hoạt động', value: 0 },
+])
+const formData = reactive({
+    name: '',
+    length: 0,
+    width: 0,
+    sleeve: 0,
+    status: null,
+})
+const createSize = () => {
+    axios.post(`${API_URL}/admin/sizes`, formData, {
+        headers:
+        {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+        .then((response) => {
+            console.log(response);
+            message.success("Thêm thành công")
+            router.push({ name: 'admin-sizes' })
+        })
+        .catch((error) => {
+            errors.value = error.response.data.errors
+            console.log(error);
+        });
+}
+const errors = ref({})
+
+</script>
 <template>
     <a-form @submit.prevent="createSize">
         <a-card title="Tạo mới kích cỡ" style="width: 100%;">
@@ -11,8 +56,8 @@
                                 <span :class="{ 'text-danger': errors.name }">Tên kích cỡ</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-input placeholder="Tên kích cỡ" allow-clear v-model:value="sizes.name"
+                        <div class="col-12 col-sm-3">
+                            <a-input placeholder="Tên kích cỡ" allow-clear v-model:value="formData.name"
                                 :class="{ 'input-danger': errors.name }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.name" class="text-danger">{{ errors.name[0] }}</small>
@@ -23,12 +68,12 @@
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label for="">
                                 <span class="text-danger me-1">*</span>
-                                <span :class="{ 'text-danger': errors.length }">Dài áo</span>
+                                <span :class="{ 'text-danger': errors.length }">Dài áo (cm)</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-input placeholder="Nhập dài áo" allow-clear v-model:value="sizes.length"
-                                :class="{ 'input-danger': errors.length }" />
+                        <div class="col-12 col-sm-3">
+                            <a-input-number min="0" style="width: 100%" placeholder="Nhập dài áo" allow-clear
+                                v-model:value="formData.length" :class="{ 'input-danger': errors.length }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.length" class="text-danger">{{ errors.length[0] }}</small>
                         </div>
@@ -38,12 +83,12 @@
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label for="">
                                 <span class="text-danger me-1">*</span>
-                                <span :class="{ 'text-danger': errors.width }">Rộng áo</span>
+                                <span :class="{ 'text-danger': errors.width }">Rộng áo (cm)</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-input placeholder="Nhập rộng áo" allow-clear v-model:value="sizes.width"
-                                :class="{ 'input-danger': errors.width }" />
+                        <div class="col-12 col-sm-3">
+                            <a-input-number min="0" style="width: 100%" placeholder="Nhập rộng áo" allow-clear
+                                v-model:value="formData.width" :class="{ 'input-danger': errors.width }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.width" class="text-danger">{{ errors.width[0] }}</small>
                         </div>
@@ -53,12 +98,12 @@
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label for="">
                                 <span class="text-danger me-1">*</span>
-                                <span :class="{ 'text-danger': errors.sleeve }">Dài tay</span>
+                                <span :class="{ 'text-danger': errors.sleeve }">Dài tay (cm)</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-input placeholder="Nhập dài tay" allow-clear v-model:value="sizes.sleeve"
-                                :class="{ 'input-danger': errors.sleeve }" />
+                        <div class="col-12 col-sm-3">
+                            <a-input-number min="0" style="width: 100%" placeholder="Nhập dài tay" allow-clear
+                                v-model:value="formData.sleeve" :class="{ 'input-danger': errors.sleeve }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.sleeve" class="text-danger">{{ errors.sleeve[0] }}</small>
                         </div>
@@ -71,9 +116,9 @@
                                 <span :class="{ 'text-danger': errors.status }">Tình trạng</span>
                             </label>
                         </div>
-                        <div class="col-12 col-sm-5">
-                            <a-select v-model:value="sizes.status" placeholder="Chọn tình trạng" style="width: 100%;"
-                                :class="{ 'select-danger': errors.status }" />
+                        <div class="col-12 col-sm-3">
+                            <a-select v-model:value="formData.status" placeholder="Chọn tình trạng" style="width: 100%;"
+                                :options="status" :class="{ 'select-danger': errors.status }" />
                             <div class=" w-100"></div>
                             <small v-if="errors.status" class="text-danger">{{ errors.status[0] }}</small>
                         </div>
@@ -95,56 +140,3 @@
         </a-card>
     </a-form>
 </template>
-
-<script setup>
-import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
-import { useMenuAdmin } from '@/stores/use-menu-admin.js';
-import { message } from 'ant-design-vue';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL;
-
-const store = useMenuAdmin();
-store.onSelectedKeys(['admin-sizes']);
-
-const router = useRouter()
-
-const sizes = reactive({
-    name: '',
-    length: '',
-    width: '',
-    sleeve: '',
-    status: ''
-})
-const createSize = () => {
-    axios.post(`${API_URL}/sizes`, sizes)
-        .then((response) => {
-            console.log(response);
-            if (response.status === 200) {
-                message.success("Thêm thành công")
-                router.push({ name: 'admin-sizes' })
-            }
-        })
-        .catch((error) => {
-            errors.value = error.response.data.errors
-            // console.log(error);
-        });
-}
-const errors = ref({})
-// const filterOption = (input, option) => {
-//     return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-// };
-
-</script>
-
-<style scoped>
-.select-danger {
-    border: 1px solid red;
-    border-radius: 7px;
-}
-
-.input-danger {
-    border-color: red;
-}
-</style>
