@@ -22,9 +22,12 @@ const status = ref([
 const formData = reactive({
     name: '',
     description: '',
-    logo_url: '',
+    logo_url: null,
     status: null,
 })
+const errors = ref({})
+const old_logo_url = ref('');
+
 const getBrand = () => {
     axios.get(`${API_URL}/admin/brands/${route.params.id}`, {
         headers:
@@ -35,7 +38,7 @@ const getBrand = () => {
         .then((response) => {
             formData.name = response.data.name
             formData.description = response.data.description
-            formData.logo_url = response.data.logo_url
+            old_logo_url.value = response.data.logo_url
             formData.status = response.data.status
         })
         .catch((error) => {
@@ -44,17 +47,28 @@ const getBrand = () => {
 }
 getBrand();
 
-const errors = ref({})
 const handleSubmit = () => {
-    axios.put(`${API_URL}/admin/brands/${route.params.id}`, formData, {
+
+    const submitData = new FormData();
+    submitData.append('_method', 'PUT');
+    submitData.append('name', formData.name);
+    submitData.append('description', formData.description || '');
+    submitData.append('status', formData.status);
+
+    if (formData.logo_url && formData.logo_url instanceof File) {
+        submitData.append('logo_url', formData.logo_url);
+    }
+
+    axios.post(`${API_URL}/admin/brands/${route.params.id}`, submitData, {
         headers:
         {
+            'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${localStorage.getItem('token')}`
         }
     })
         .then((response) => {
             console.log(response);
-            message.success("Sửa thành công")
+            message.success("Cập nhật thành công")
             router.push({ name: 'admin-brands' })
         })
         .catch((error) => {
@@ -62,6 +76,7 @@ const handleSubmit = () => {
             // console.log(error);
         });
 }
+
 const handleFileChange = (event) => {
     if (event.target.files && event.target.files[0]) {
         formData.logo_url = event.target.files[0];
@@ -71,8 +86,8 @@ const handleFileChange = (event) => {
 };
 </script>
 <template>
-    <a-form @submit.prevent="handleSubmit" enctype="multipart/form-data">
-        <a-card title="Cập nhật vai trò" style="width: 100%;">
+    <a-form @submit.prevent="handleSubmit">
+        <a-card title="Cập nhật thương hiệu" style="width: 100%;">
             <div class="row mb-3">
                 <div class="col-12">
                     <!-- Tên thương hiệu -->
@@ -101,31 +116,30 @@ const handleFileChange = (event) => {
                             <a-textarea placeholder="Nhập mô tả" allow-clear v-model:value="formData.description" />
                         </div>
                     </div>
+                    <!-- Logo hiện tại -->
+                    <div class="row mb-3" v-if="old_logo_url">
+                        <div class="col-12 col-sm-3 text-start text-sm-end">
+                            <label for="">
+                                <span>Logo hiện tại</span>
+                            </label>
+                        </div>
+                        <div class="col-12 col-sm-4">
+                            <a-image :src="`${STORAGE_URL}/${old_logo_url}`" alt="Logo thương hiệu"
+                                style="max-width: 100px;" />
+                        </div>
+                    </div>
                     <!-- Logo URL -->
                     <div class="row mb-3">
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label for="">
-                                <span class="text-danger me-1">*</span>
-                                <span :class="{ 'text-danger': errors.logo_url }">Logo</span>
+                                <span>Logo mới</span>
                             </label>
                         </div>
                         <div class="col-12 col-sm-4">
-                            <input :class="{ 'input-danger': errors.logo_url }" type="file" name="thumbnail"
-                                @change="handleFileChange" accept="image/*" />
+                            <input :class="{ 'input-danger': errors.logo_url }" type="file" @change="handleFileChange"
+                                accept="image/*" />
                             <div class=" w-100"></div>
                             <small v-if="errors.logo_url" class="text-danger">{{ errors.logo_url[0] }}</small>
-                        </div>
-                    </div>
-                    <!-- Hình ảnh hiện tại -->
-                    <div class="row mb-3" v-if="formData.logo_url">
-                        <div class="col-12 col-sm-3 text-start text-sm-end">
-                            <label for="">
-                                <span>Hình ảnh hiện tại</span>
-                            </label>
-                        </div>
-                        <div class="col-12 col-sm-4">
-                            <a-image v-if="formData.logo_url" :src="`${STORAGE_URL}/${formData.logo_url}`"
-                                alt="Thumbnail sản phẩm" style="max-width: 100px;" />
                         </div>
                     </div>
                     <!-- Tình trạng -->
