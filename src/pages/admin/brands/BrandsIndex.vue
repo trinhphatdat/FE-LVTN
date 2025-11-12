@@ -100,7 +100,7 @@ const handleDelete = (id) => {
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.key === 'logo_url'">
                             <a-image v-if="record.logo_url" :src="`${STORAGE_URL}/${record.logo_url}`"
-                                alt="Thumbnail sản phẩm" style="max-width: 100px;" />
+                                :alt="record.name" style="max-width: 100px;" />
                         </template>
 
                         <template v-if="column.key === 'status'">

@@ -1,3 +1,73 @@
+<script setup>
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { useMenuAdmin } from '@/stores/use-menu-admin.js';
+import { message } from 'ant-design-vue';
+import axios from 'axios';
+import dayjs from 'dayjs';
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+const store = useMenuAdmin();
+store.onSelectedKeys(['admin-promotions']);
+
+const router = useRouter()
+
+const promotions = reactive({
+    name: '',
+    url_image: '',
+    description: '',
+    discount_type: 'percentage',
+    discount_value: 0,
+    min_order_value: 0,
+    usage_limit: null,
+    status: 1,
+})
+const dateRange = ref([]);
+
+
+const handleFileChange = (event) => {
+    if (event.target.files && event.target.files[0]) {
+        promotions.url_image = event.target.files[0];
+    } else {
+        promotions.url_image = null;
+    }
+};
+
+const createPromotion = () => {
+    const formData = new FormData();
+
+    // Thêm các trường dữ liệu
+    formData.append('url_image', promotions.url_image);
+    formData.append('name', promotions.name);
+    formData.append('description', promotions.description || '');
+    formData.append('discount_type', promotions.discount_type);
+    formData.append('discount_value', promotions.discount_value);
+    formData.append('min_order_value', promotions.min_order_value);
+    formData.append('usage_limit', promotions.usage_limit || '');
+    formData.append('status', promotions.status);
+    formData.append('start_date', dateRange.value[0] ? dayjs(dateRange.value[0]).format('YYYY-MM-DD HH:mm:ss') : '');
+    formData.append('end_date', dateRange.value[1] ? dayjs(dateRange.value[1]).format('YYYY-MM-DD HH:mm:ss') : '');
+
+    axios.post(`${API_URL}/admin/promotions`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+    })
+        .then((response) => {
+            console.log(response);
+            message.success("Thêm thành công")
+            router.push({ name: 'admin-promotions' })
+        })
+        .catch((error) => {
+            errors.value = error.response.data.errors
+            console.log(error.response);
+        });
+}
+
+const errors = ref({})
+</script>
 <template>
     <form @submit.prevent="createPromotion" enctype="multipart/form-data">
         <a-card title="Tạo mới khuyến mãi" style="width: 100%;">
@@ -23,19 +93,15 @@
                     <div class="row mb-3">
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label for="">
+                                <span class="text-danger me-1">*</span>
                                 <span :class="{ 'text-danger': errors.url_image }">Hình ảnh</span>
                             </label>
                         </div>
                         <div class="col-12 col-sm-5">
-                            <input type="file" name="thumbnail" @change="handleFileChange" accept="image/*" />
+                            <input :class="{ 'input-danger': errors.url_image }" type="file" name="url_image"
+                                @change="handleFileChange" accept="image/*" />
                             <div class="w-100"></div>
                             <small v-if="errors.url_image" class="text-danger">{{ errors.url_image[0] }}</small>
-
-                            <!-- Preview hình ảnh -->
-                            <div v-if="imagePreview" class="mt-3">
-                                <img :src="imagePreview" alt="Preview"
-                                    style="max-width: 200px; height: auto; border-radius: 8px; border: 1px solid #d9d9d9;" />
-                            </div>
                         </div>
                     </div>
 
@@ -84,7 +150,7 @@
                             </label>
                         </div>
                         <div class="col-12 col-sm-5">
-                            <a-input-number placeholder="Giá trị giảm" style="width: 100%;"
+                            <a-input-number placeholder="Giá trị giảm" style="width: 100%;" :min="0"
                                 v-model:value="promotions.discount_value"
                                 :class="{ 'input-danger': errors.discount_value }" />
                             <div class=" w-100"></div>
@@ -101,7 +167,7 @@
                             </label>
                         </div>
                         <div class="col-12 col-sm-5">
-                            <a-input-number placeholder="Giá trị đơn hàng tối thiểu" style="width: 100%;"
+                            <a-input-number placeholder="Giá trị đơn hàng tối thiểu" style="width: 100%;" :min="0"
                                 v-model:value="promotions.min_order_value"
                                 :class="{ 'input-danger': errors.min_order_value }" />
                             <div class=" w-100"></div>
@@ -158,8 +224,8 @@
                         <div class="col-12 col-sm-5">
                             <a-select v-model:value="promotions.status" placeholder="Chọn tình trạng"
                                 style="width: 100%;" :class="{ 'select-danger': errors.status }">
-                                <a-select-option :value="true">Hoạt động</a-select-option>
-                                <a-select-option :value="false">Ngừng hoạt động</a-select-option>
+                                <a-select-option :value="1">Hoạt động</a-select-option>
+                                <a-select-option :value="0">Ngừng hoạt động</a-select-option>
                             </a-select>
                             <div class=" w-100"></div>
                             <small v-if="errors.status" class="text-danger">{{ errors.status[0] }}</small>
@@ -182,97 +248,3 @@
         </a-card>
     </form>
 </template>
-
-<script setup>
-import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
-import { useMenuAdmin } from '@/stores/use-menu-admin.js';
-import { message } from 'ant-design-vue';
-import axios from 'axios';
-import dayjs from 'dayjs';
-
-const API_URL = import.meta.env.VITE_API_URL;
-
-const store = useMenuAdmin();
-store.onSelectedKeys(['admin-promotions']);
-
-const router = useRouter()
-
-const promotions = reactive({
-    name: '',
-    url_image: '',
-    description: '',
-    discount_type: '',
-    discount_value: 0,
-    min_order_value: 0,
-    usage_limit: null,
-    status: true,
-})
-
-const dateRange = ref([]);
-const imagePreview = ref('');
-const selectedFile = ref(null);
-
-const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        selectedFile.value = file;
-
-        // Tạo preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            imagePreview.value = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-};
-
-const createPromotion = () => {
-    const formData = new FormData();
-
-    // Thêm các trường dữ liệu
-    formData.append('name', promotions.name);
-    formData.append('description', promotions.description || '');
-    formData.append('discount_type', promotions.discount_type);
-    formData.append('discount_value', promotions.discount_value);
-    formData.append('min_order_value', promotions.min_order_value);
-    formData.append('usage_limit', promotions.usage_limit || '');
-    formData.append('status', promotions.status);
-    formData.append('start_date', dateRange.value[0] ? dayjs(dateRange.value[0]).format('YYYY-MM-DD HH:mm:ss') : '');
-    formData.append('end_date', dateRange.value[1] ? dayjs(dateRange.value[1]).format('YYYY-MM-DD HH:mm:ss') : '');
-
-    // Thêm file ảnh
-    if (selectedFile.value) {
-        formData.append('thumbnail', selectedFile.value);
-    }
-
-    axios.post(`${API_URL}/promotions`, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    })
-        .then((response) => {
-            console.log(response);
-            if (response.status === 200) {
-                message.success("Thêm thành công")
-                router.push({ name: 'admin-promotions' })
-            }
-        })
-        .catch((error) => {
-            errors.value = error.response.data.errors
-        });
-}
-
-const errors = ref({})
-</script>
-
-<style scoped>
-.select-danger {
-    border: 1px solid red;
-    border-radius: 7px;
-}
-
-.input-danger {
-    border-color: red;
-}
-</style>
