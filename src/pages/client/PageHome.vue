@@ -97,7 +97,7 @@ const bestSellerProducts = ref([
                         <div class="product-price">
                             <span class="current-price">{{ product.price.toLocaleString('vi-VN') }} VNĐ</span>
                             <span v-if="product.oldPrice" class="old-price">{{ product.oldPrice.toLocaleString('vi-VN')
-                                }} VNĐ</span>
+                            }} VNĐ</span>
                         </div>
                     </div>
                 </div>
@@ -261,80 +261,5 @@ a[href]:hover {
 a[href] i {
     margin-left: 5px;
     transition: transform 0.3s ease;
-}
-
-.product-card {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
-    cursor: pointer;
-    padding: 15px;
-}
-
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-}
-
-.product-image-wrapper {
-    width: 100%;
-    height: 350px;
-    overflow: hidden;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    background: #e9ecef;
-}
-
-.product-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.placeholder-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: #999;
-}
-
-.badge-discount {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #dc3545;
-    color: white;
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.product-name {
-    font-size: 0.95rem;
-    color: #333;
-    margin-bottom: 10px;
-    min-height: 45px;
-    line-height: 1.4;
-}
-
-.product-price {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.current-price {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #333;
-}
-
-.old-price {
-    font-size: 0.9rem;
-    color: #999;
-    text-decoration: line-through;
 }
 </style>

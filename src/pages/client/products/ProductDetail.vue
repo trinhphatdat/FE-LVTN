@@ -376,7 +376,7 @@ const toggleSizeGuide = () => {
                 </div>
             </div>
 
-            <!-- Product Reviews Section -->
+            <!-- Begin: Đánh giá sản phẩm -->
             <div class="row mt-5">
                 <div class="col-12">
                     <div class="product-reviews">
@@ -384,23 +384,10 @@ const toggleSizeGuide = () => {
                             <h3 class="reviews-title">Đánh giá sản phẩm</h3>
                         </a-divider>
 
-                        <!-- Rating Summary -->
-                        <div class="rating-summary mb-4">
-                            <a-card>
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <div class="text-center me-5">
-                                        <div class="average-rating">{{ averageRating }}</div>
-                                        <a-rate :value="averageRating" disabled allow-half />
-                                        <div class="total-reviews mt-2">{{ totalReviews }} đánh giá</div>
-                                    </div>
-                                </div>
-                            </a-card>
-                        </div>
-
-                        <!-- Write Review Form -->
+                        <!-- Form viết đánh giá -->
                         <div class="write-review mb-4">
                             <a-card title="Viết đánh giá của bạn">
-                                <form @submit.prevent="handleSubmitReview">
+                                <a-form @submit.prevent="handleSubmitReview">
                                     <div class="mb-3">
                                         <label class="form-label">Đánh giá của bạn:</label>
                                         <div>
@@ -416,7 +403,7 @@ const toggleSizeGuide = () => {
                                     <a-button type="primary" html-type="submit" size="large">
                                         Gửi đánh giá
                                     </a-button>
-                                </form>
+                                </a-form>
                             </a-card>
                         </div>
 
@@ -451,6 +438,7 @@ const toggleSizeGuide = () => {
                     </div>
                 </div>
             </div>
+            <!-- End: Đánh giá sản phẩm -->
         </div>
     </div>
 

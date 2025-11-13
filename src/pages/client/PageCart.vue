@@ -18,69 +18,68 @@ const router = useRouter();
 const userStore = useUserStore();
 const { isLoggedIn, cart_items, isUserLoading } = storeToRefs(userStore);
 
-//check xem đã đăng nhập chưa
 // if (!isLoggedIn.value) {
 //     message.error('Bạn cần đăng nhập để xem giỏ hàng');
 //     router.push({ name: 'account-login' });
 // }
 
 //Begin: Tăng giảm số lượng sản phẩm
-// const increaseQuantity = (id) => {
-//     axios.patch(`${API_URL}/cartItems/increment/${id}`, {}, {
-//         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-//     })
-//         .then(() => {
-//             window.location.reload();
-//         })
-//         .catch(error => {
-//             message.error('Tăng số lượng sản phẩm thất bại');
-//             console.log(error);
-//         });
-// }
+const increaseQuantity = (id) => {
+    axios.patch(`${API_URL}/cartItems/increment/${id}`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    })
+        .then(() => {
+            window.location.reload();
+        })
+        .catch(error => {
+            message.error('Tăng số lượng sản phẩm thất bại');
+            console.log(error);
+        });
+}
 
-// const decreaseQuantity = (item) => {
-//     if (item.tempQuantity <= 1) {
-//         handleDeleteItem(item.id);
-//     }
-//     else {
-//         axios.patch(`${API_URL}/cartItems/decrement/${item.id}`, {}, {
-//             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-//         })
-//             .then((response) => {
-//                 message.success(response.data.message || 'Giảm số lượng sản phẩm thành công');
-//                 window.location.reload();
-//             })
-//             .catch(error => {
-//                 message.error('Giảm số lượng sản phẩm thất bại');
-//                 console.log(error);
-//             });
-//     }
-// }
+const decreaseQuantity = (item) => {
+    if (item.tempQuantity <= 1) {
+        handleDeleteItem(item.id);
+    }
+    else {
+        axios.patch(`${API_URL}/cartItems/decrement/${item.id}`, {}, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        })
+            .then((response) => {
+                message.success(response.data.message || 'Giảm số lượng sản phẩm thành công');
+                window.location.reload();
+            })
+            .catch(error => {
+                message.error('Giảm số lượng sản phẩm thất bại');
+                console.log(error);
+            });
+    }
+}
 // End: Tăng giảm số lượng sản phẩm
 
 // Begin: Xoá sản phẩm khỏi giỏ hàng
-// const handleDeleteItem = (id) => {
-//     Modal.confirm({
-//         title: 'Xác nhận xóa sản phẩm',
-//         content: 'Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?',
-//         okText: 'Xoá',
-//         cancelText: 'Huỷ',
-//         onOk: () => {
-//             axios.delete(`${API_URL}/cartItems/${id}`, {}, {
-//                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-//             })
-//                 .then((response) => {
-//                     message.success(response.data.message || 'Giảm số lượng sản phẩm thành công');
-//                     window.location.reload();
-//                 })
-//                 .catch(error => {
-//                     message.error('Giảm số lượng sản phẩm thất bại');
-//                     console.log(error);
-//                 });
-//         },
-//         onCancel: () => { }
-//     });
-// }
+const handleDeleteItem = (id) => {
+    Modal.confirm({
+        title: 'Xác nhận xóa sản phẩm',
+        content: 'Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?',
+        okText: 'Xoá',
+        cancelText: 'Huỷ',
+        onOk: () => {
+            axios.delete(`${API_URL}/cartItems/${id}`, {}, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            })
+                .then((response) => {
+                    message.success(response.data.message || 'Giảm số lượng sản phẩm thành công');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    message.error('Giảm số lượng sản phẩm thất bại');
+                    console.log(error);
+                });
+        },
+        onCancel: () => { }
+    });
+}
 // End: Xoá sản phẩm khỏi giỏ hàng
 
 //Begin: Nhập số lượng sản phẩm theo ý muốn

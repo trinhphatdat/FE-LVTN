@@ -24,7 +24,7 @@ const toggleSubnav = () => {
 // Begin: login
 const router = useRouter()
 const userStore = useUserStore()
-const { isLoggedIn, user, /*cart_items*/ } = storeToRefs(userStore)
+const { isLoggedIn, user, cart_items } = storeToRefs(userStore)
 
 const login = () => {
     router.push({ name: 'account-login' })
@@ -128,7 +128,7 @@ onUnmounted(() => {
             <div class="btn-cart">
                 <router-link :to="{ name: 'cart' }">
                     <i class=" fa-solid fa-cart-shopping"></i>
-                    <!-- <span class="count">{{ cart_items.count || 0 }}</span> -->
+                    <span class="count">{{ cart_items.count || 0 }}</span>
                 </router-link>
             </div>
             <div class="btn-search">

@@ -19,11 +19,11 @@
                         <div class="row">
                             <div class="col-sm-8 col-12 d-flex align-items-center gap-3 p-3">
                                 <span class="text-primary fw-bold">{{ priceRange[0].toLocaleString('vi-VN')
-                                }}.000đ</span>
+                                    }}.000đ</span>
                                 <a-slider v-model:value="priceRange" :min="min" :max="max" :step="1" range
                                     :tipFormatter="formatVND" class="flex-grow-1" />
                                 <span class="text-primary fw-bold">{{ priceRange[1].toLocaleString('vi-VN')
-                                }}.000đ</span>
+                                    }}.000đ</span>
                             </div>
                             <div class="col-sm-3 col-12 d-flex align-items-center gap-2">
                                 <a-button type="primary" class="btn-filter" html-type="submit"
@@ -39,31 +39,25 @@
     <!-- End: form lọc -->
 
     <!-- Begin: danh sách sản phẩm -->
-    <div class="row mt-4">
-        <div v-for="item in products" :key="item.id" class="col-lg-4 col-md-6 col-6">
-            <div class="product">
-                <div class="product-img">
-                    <router-link :to="{ name: 'product-detail', params: { id: item.id } }">
-                        <img :src="item.thumbnail.startsWith('http') ? item.thumbnail : `${STORAGE_URL}` + item.thumbnail"
-                            :alt="item.name" />
+    <div class="row g-4">
+        <div v-for="product in products" :key="product.id" class="col-lg-3 col-md-6 col-12">
+            <div class="product-card">
+                <div class="product-image-wrapper position-relative">
+                    <span v-if="product.discount" class="badge-discount"> -{{ product.discount }}% </span>
+                    <router-link :to="{ name: 'product-detail', params: { id: product.id } }">
+                        <img v-if="product.thumbnail" :src="`${STORAGE_URL}/${product.thumbnail}`" :alt="product.title"
+                            class="product-image">
                     </router-link>
+                    <span v-if="!product.thumbnail" class="placeholder-image">No Image</span>
                 </div>
-                <div class="product-detail">
-                    <router-link :to="{ name: 'product-detail', params: { id: item.id } }">
-                        <span class="pro-name">{{ item.title }}</span>
-                    </router-link>
-                    <div class="box-bottom">
-                        <span class="price">
-                            {{ (item.price || 0).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) }}
-                        </span>
-                        <router-link :to="{ name: 'product-detail', params: { id: item.id } }">
-                            <span class="btn-order">
-                                Đặt hàng
-                                <i class="fa-solid fa-plus plus-icon"></i>
-                                <i class="fa-solid fa-chevron-right arrow-right"></i>
-                            </span>
-                        </router-link>
-                    </div>
+
+                <h6 class="product-name">{{ product.title }}</h6>
+
+                <div class="product-price">
+                    <span class="current-price">{{ formatCurrency(product.price) }}</span>
+                    <span v-if="product.discount != 0" class="old-price">{{
+                        formatCurrency(product.original_price)
+                    }}</span>
                 </div>
             </div>
         </div>
@@ -72,7 +66,7 @@
 
     <!-- Begin: paginate -->
     <a-pagination v-model:current="current_page" :total="total" :page-size="perPage" show-less-items
-        class="d-flex justify-content-center" />
+        class="d-flex justify-content-center mt-4" />
     <!-- End: paginate -->
 </template>
 
@@ -88,7 +82,7 @@ const STORAGE_URL = import.meta.env.VITE_STORAGE_URL;
 const route = useRoute();
 const router = useRouter();
 
-// const isLoading = ref(true);
+const isLoading = ref(true);
 
 const current_page = ref(1);
 const products = ref([]);
@@ -109,48 +103,48 @@ const priceRange = ref([
 const sortOrder = ref(route.query.sort || '');
 
 const getProducts = (page = 1) => {
-    // isLoading.value = true;
-    // const params = {
-    //     page: page,
-    //     min_price: priceRange.value[0] * 1000,
-    //     max_price: priceRange.value[1] * 1000,
-    //     sort: sortOrder.value
-    // };
+    isLoading.value = true;
+    const params = {
+        page: page,
+        min_price: priceRange.value[0] * 1000,
+        max_price: priceRange.value[1] * 1000,
+        sort: sortOrder.value
+    };
 
-    // axios.get(`${API_URL}/products`, { params })
-    //     .then((response) => {
-    //         const pageData = response.data;
-    //         products.value = pageData.data || [];
-    //         total.value = pageData.total ?? 0;
-    //         perPage.value = pageData.per_page ?? 10;
-    //         current_page.value = pageData.current_page ?? 1;
-    //     })
-    //     .catch((error) => {
-    //         console.error('Lỗi lấy sản phẩm:', error);
-    //     })
-    //     .finally(() => {
-    //         isLoading.value = false;
-    //     });
-    products.value = [
-        {
-            id: 1,
-            title: 'Sản phẩm mẫu 1',
-            thumbnail: 'https://cdn.hstatic.net/products/1000184601/men_trang__2__0ebd195a57ca4f2b9f172b96e42064fc_master.jpg',
-            price: 100000,
-        },
-        {
-            id: 2,
-            title: 'Sản phẩm mẫu 2',
-            thumbnail: 'https://cdn.hstatic.net/products/1000184601/men_trang__2__0ebd195a57ca4f2b9f172b96e42064fc_master.jpg',
-            price: 200000,
-        },
-        {
-            id: 3,
-            title: 'Sản phẩm mẫu 3',
-            thumbnail: 'https://cdn.hstatic.net/products/1000184601/men_trang__2__0ebd195a57ca4f2b9f172b96e42064fc_master.jpg',
-            price: 150000,
-        },
-    ]
+    axios.get(`${API_URL}/client/products`, { params })
+        .then((response) => {
+            const pageData = response.data;
+            products.value = pageData.data || [];
+            total.value = pageData.total ?? 0;
+            perPage.value = pageData.per_page ?? 10;
+            current_page.value = pageData.current_page ?? 1;
+        })
+        .catch((error) => {
+            console.error('Lỗi lấy sản phẩm:', error);
+        })
+        .finally(() => {
+            isLoading.value = false;
+        });
+    // products.value = [
+    //     {
+    //         id: 1,
+    //         title: 'Sản phẩm mẫu 1',
+    //         thumbnail: 'https://cdn.hstatic.net/products/1000184601/men_trang__2__0ebd195a57ca4f2b9f172b96e42064fc_master.jpg',
+    //         price: 100000,
+    //     },
+    //     {
+    //         id: 2,
+    //         title: 'Sản phẩm mẫu 2',
+    //         thumbnail: 'https://cdn.hstatic.net/products/1000184601/men_trang__2__0ebd195a57ca4f2b9f172b96e42064fc_master.jpg',
+    //         price: 200000,
+    //     },
+    //     {
+    //         id: 3,
+    //         title: 'Sản phẩm mẫu 3',
+    //         thumbnail: 'https://cdn.hstatic.net/products/1000184601/men_trang__2__0ebd195a57ca4f2b9f172b96e42064fc_master.jpg',
+    //         price: 150000,
+    //     },
+    // ]
 };
 
 // Lấy dữ liệu khi component được tạo
@@ -200,22 +194,16 @@ const onResetFilter = () => {
 const formatVND = (value) => {
     return `${value}.000đ`;
 };
+const formatCurrency = (value) => {
+    if (!value && value !== 0) return '0 VNĐ';
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(value);
+};
 </script>
 
 <style scoped>
-.price-values {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-}
-
-.price-min,
-.price-max {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #1890ff;
-}
-
 .btn-filter {
     background: #d9363e;
 }

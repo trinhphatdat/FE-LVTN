@@ -14,9 +14,10 @@ export const useUserStore = defineStore('user', () => {
         phone_number: '',
         address: '',
         cart_id: null,
+        role_id: null
     })
 
-    // const cart_items = ref([])
+    const cart_items = ref([])
 
     const setUser = (id, fullname) => {
         isLoggedIn.value = true
@@ -40,34 +41,29 @@ export const useUserStore = defineStore('user', () => {
                 user.phone_number = ''
                 user.address = ''
                 user.cart_id = null
-                // cart_items.value = []
+                user.role_id = null
+                cart_items.value = []
             })
     }
 
     //Bein: fetch cart items
-    // const fetchCartItems = (cartId, token) => {
-    //     axios.get(`${URL_API}/cartItems/${cartId}`, {
-    //         headers: { Authorization: `Bearer ${token}` }
-    //     })
-    //         .then((response) => {
-    //             if (response && response.data) {
-    //                 cart_items.value = {
-    //                     ...response.data,
-    //                     data: response.data.data.map(item => ({
-    //                         ...item,
-    //                         tempQuantity: item.quantity
-    //                     }))
-    //                 }
-    //             } else {
-    //                 cart_items.value = []
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             cart_items.value = []
-    //             console.log(error)
-    //             logout()
-    //         })
-    // }
+    const fetchCartItems = (cartId, token) => {
+        axios.get(`${URL_API}/cartItems/${cartId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then((response) => {
+                if (response && response.data) {
+                    cart_items.value = response.data.cart_items || []
+                } else {
+                    cart_items.value = []
+                }
+            })
+            .catch((error) => {
+                cart_items.value = []
+                console.log(error)
+                logout()
+            })
+    }
     //End: fetch cart items
 
     //Begin: fetch user profile
@@ -89,13 +85,14 @@ export const useUserStore = defineStore('user', () => {
                     user.email = response.data.user.email || ''
                     user.phone_number = response.data.user.phone_number || ''
                     user.address = response.data.user.address || ''
+                    user.role_id = response.data.user.role_id || null
                     user.cart_id = response.data.cart_id || null
                 }
-                // if (user.cart_id) {
-                //     fetchCartItems(user.cart_id, token)
-                // } else {
-                //     cart_items.value = []
-                // }
+                if (user.cart_id) {
+                    fetchCartItems(user.cart_id, token)
+                } else {
+                    cart_items.value = []
+                }
             })
             .catch((error) => {
                 console.log(error)
@@ -107,5 +104,5 @@ export const useUserStore = defineStore('user', () => {
     }
     //End: fetch user profile
 
-    return { isLoggedIn, user, setUser, logout, fetchProfile, /* cart_items, */ isUserLoading }
+    return { isLoggedIn, user, setUser, logout, fetchProfile, cart_items, isUserLoading }
 })
