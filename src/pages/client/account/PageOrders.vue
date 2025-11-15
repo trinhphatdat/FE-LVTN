@@ -1,76 +1,81 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import router from '@/router';
 import { useUserStore } from '@/stores/use-user-store';
 import TheLoadingSpinner from '@/components/TheLoadingSpinner.vue';
+import axios from 'axios';
+import { message, Modal } from 'ant-design-vue';
+
+const API_URL = import.meta.env.VITE_API_URL;
+const STORAGE_URL = import.meta.env.VITE_STORAGE_URL;
 
 const userStore = useUserStore();
 if (!userStore.isLoggedIn) {
     router.push({ name: 'account-login' });
 }
 
-// Dữ liệu mẫu
-const orders = ref([
-    {
-        id: 1,
-        fullname: 'Nguyễn Văn A',
-        email: 'nguyenvana@example.com',
-        phone_number: '0901234567',
-        address: '123 Đường ABC, Quận 1, TP.HCM',
-        text_note: 'Giao hàng giờ hành chính',
-        order_status: 'confirmed',
-        shipping_status: 'shipping',
-        items_total: 2500000,
-        shipping_fee: 30000,
-        promotion_discount: 100000,
-        total_money: 2430000,
-        payment_method: 'COD',
-        payment_status: 'unpaid',
-        is_custom_order: false,
-        created_at: '2025-11-05 10:30:00',
-        shipped_at: '2025-11-06 14:20:00',
-    },
-    {
-        id: 2,
-        fullname: 'Nguyễn Văn A',
-        email: 'nguyenvana@example.com',
-        phone_number: '0901234567',
-        address: '123 Đường ABC, Quận 1, TP.HCM',
-        text_note: '',
-        order_status: 'delivered',
-        shipping_status: 'delivered',
-        items_total: 1200000,
-        shipping_fee: 25000,
-        promotion_discount: 0,
-        total_money: 1225000,
-        payment_method: 'momo',
-        payment_status: 'paid',
-        is_custom_order: false,
-        created_at: '2025-10-28 09:15:00',
-        delivered_at: '2025-11-01 16:45:00',
-    },
-    {
-        id: 3,
-        fullname: 'Nguyễn Văn A',
-        email: 'nguyenvana@example.com',
-        phone_number: '0901234567',
-        address: '123 Đường ABC, Quận 1, TP.HCM',
-        text_note: '',
-        order_status: 'cancelled',
-        shipping_status: 'failed',
-        items_total: 800000,
-        shipping_fee: 20000,
-        promotion_discount: 50000,
-        total_money: 770000,
-        payment_method: 'payos',
-        payment_status: 'refunded',
-        is_custom_order: false,
-        created_at: '2025-10-20 14:30:00',
-        cancelled_at: '2025-10-21 10:00:00',
-    },
-]);
-
+// State
+const orders = ref([]);
+const loading = ref(false);
 const activeTab = ref('all');
+
+// Fetch orders từ API
+const fetchOrders = async () => {
+    loading.value = true;
+    try {
+        const response = await axios.get(`${API_URL}/orders`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (response.data.success) {
+            orders.value = response.data.data;
+        }
+    } catch (error) {
+        console.error('Fetch orders error:', error);
+        message.error(error.response?.data?.message || 'Không thể tải danh sách đơn hàng');
+    } finally {
+        loading.value = false;
+    }
+};
+
+// Hủy đơn hàng
+const cancelOrder = async (orderId) => {
+    try {
+        const response = await axios.post(
+            `${API_URL}/orders/${orderId}/cancel`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            }
+        );
+
+        if (response.data.success) {
+            message.success('Hủy đơn hàng thành công');
+            fetchOrders(); // Reload danh sách
+        }
+    } catch (error) {
+        console.error('Cancel order error:', error);
+        message.error(error.response?.data?.message || 'Không thể hủy đơn hàng');
+    }
+};
+
+// Confirm hủy đơn hàng
+const confirmCancelOrder = (orderId) => {
+    Modal.confirm({
+        title: 'Xác nhận hủy đơn hàng',
+        content: 'Bạn có chắc chắn muốn hủy đơn hàng này?',
+        okText: 'Hủy đơn',
+        cancelText: 'Không',
+        okButtonProps: { danger: true },
+        onOk: () => {
+            cancelOrder(orderId);
+        }
+    });
+};
 
 const getOrderStatusColor = (status) => {
     const colors = {
@@ -141,16 +146,32 @@ const filteredOrders = computed(() => {
 });
 
 const viewOrderDetail = (orderId) => {
-    // TODO: Navigate to order detail page
     router.push({ name: 'account-order-detail', params: { id: orderId } });
 };
+
+// Mua lại đơn hàng
+const reOrder = async (order) => {
+    try {
+        // TODO: Thêm sản phẩm từ đơn hàng vào giỏ hàng
+        message.info('Chức năng mua lại đang được phát triển');
+    } catch (error) {
+        console.error('Re-order error:', error);
+        message.error('Không thể mua lại đơn hàng');
+    }
+};
+
+// Load orders khi component mount
+onMounted(() => {
+    fetchOrders();
+});
 </script>
 
 <template>
     <div class="orders-page">
-        <a-card :bordered="false">
+        <TheLoadingSpinner v-if="loading" />
 
-            <a-tabs v-model:activeKey="activeTab">
+        <a-card :bordered="false">
+            <a-tabs v-model:activeKey="activeTab" @change="fetchOrders">
                 <a-tab-pane key="all" tab="Tất cả"></a-tab-pane>
                 <a-tab-pane key="pending" tab="Chờ xác nhận"></a-tab-pane>
                 <a-tab-pane key="confirmed" tab="Đã xác nhận"></a-tab-pane>
@@ -180,8 +201,8 @@ const viewOrderDetail = (orderId) => {
 
                     <a-divider style="margin: 12px 0" />
 
-                    <a-row :gutter="[16, 16]">
-                        <a-col :xs="24" :md="12">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
                             <div class="info-section">
                                 <h4>Thông tin giao hàng</h4>
                                 <p><strong>Người nhận:</strong> {{ order.fullname }}</p>
@@ -191,9 +212,9 @@ const viewOrderDetail = (orderId) => {
                                     <strong>Ghi chú:</strong> {{ order.text_note }}
                                 </p>
                             </div>
-                        </a-col>
+                        </div>
 
-                        <a-col :xs="24" :md="12">
+                        <div class="col-12 col-md-6">
                             <div class="info-section">
                                 <h4>Thông tin thanh toán</h4>
                                 <p>
@@ -207,8 +228,8 @@ const viewOrderDetail = (orderId) => {
                                     </a-tag>
                                 </p>
                             </div>
-                        </a-col>
-                    </a-row>
+                        </div>
+                    </div>
 
                     <a-divider style="margin: 12px 0" />
 
@@ -239,10 +260,10 @@ const viewOrderDetail = (orderId) => {
                             Xem chi tiết
                         </a-button>
                         <a-button v-if="order.order_status === 'delivered' && order.payment_status === 'paid'"
-                            type="default">
+                            type="default" @click="reOrder(order)">
                             Mua lại
                         </a-button>
-                        <a-button v-if="order.order_status === 'pending'" danger>
+                        <a-button v-if="order.order_status === 'pending'" danger @click="confirmCancelOrder(order.id)">
                             Hủy đơn
                         </a-button>
                     </div>

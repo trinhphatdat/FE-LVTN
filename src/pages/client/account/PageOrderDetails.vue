@@ -1,8 +1,14 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeftOutlined } from '@ant-design/icons-vue';
 import { useUserStore } from '@/stores/use-user-store';
+import { message } from 'ant-design-vue';
+import axios from 'axios';
+import TheLoadingSpinner from '@/components/TheLoadingSpinner.vue';
+
+const API_URL = import.meta.env.VITE_API_URL;
+const STORAGE_URL = import.meta.env.VITE_STORAGE_URL;
 
 const route = useRoute();
 const router = useRouter();
@@ -13,57 +19,30 @@ if (!userStore.isLoggedIn) {
 }
 
 const orderId = route.params.id;
+const order = ref(null);
+const loading = ref(false);
 
-// Dữ liệu mẫu chi tiết đơn hàng
-const order = ref({
-    id: 1,
-    promotion_id: null,
-    user_id: 1,
-    fullname: 'Nguyễn Văn A',
-    email: 'nguyenvana@example.com',
-    phone_number: '0901234567',
-    address: '123 Đường ABC, Quận 1, TP.HCM',
-    text_note: 'Giao hàng giờ hành chính',
-    order_status: 'shipping',
-    shipping_status: 'shipping',
-    items_total: 2500000,
-    shipping_fee: 30000,
-    promotion_discount: 100000,
-    total_money: 2430000,
-    payment_method: 'COD',
-    payment_status: 'unpaid',
-    paid_at: null,
-    is_custom_order: false,
-    shipped_at: '2025-11-06 14:20:00',
-    delivered_at: null,
-    cancelled_at: null,
-    created_at: '2025-11-05 10:30:00',
-    updated_at: '2025-11-06 14:20:00',
-    order_items: [
-        {
-            id: 1,
-            product_id: 1,
-            product_name: 'Áo thun nam basic',
-            product_image: 'https://via.placeholder.com/100',
-            size: 'L',
-            color: 'Đen',
-            quantity: 2,
-            price: 250000,
-            total: 500000,
-        },
-        {
-            id: 2,
-            product_id: 2,
-            product_name: 'Quần jean nam slim fit',
-            product_image: 'https://via.placeholder.com/100',
-            size: '32',
-            color: 'Xanh đậm',
-            quantity: 1,
-            price: 2000000,
-            total: 2000000,
-        },
-    ],
-});
+// Fetch chi tiết đơn hàng
+const fetchOrderDetail = async () => {
+    loading.value = true;
+    try {
+        const response = await axios.get(`${API_URL}/orders/${orderId}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (response.data.success) {
+            order.value = response.data.data;
+        }
+    } catch (error) {
+        console.error('Fetch order detail error:', error);
+        message.error(error.response?.data?.message || 'Không thể tải chi tiết đơn hàng');
+        router.push({ name: 'account-orders' });
+    } finally {
+        loading.value = false;
+    }
+};
 
 const getOrderStatusColor = (status) => {
     const colors = {
@@ -89,6 +68,7 @@ const getOrderStatusText = (status) => {
 
 const getShippingStatusText = (status) => {
     const texts = {
+        pending: 'Chờ xử lý',
         preparing: 'Đang chuẩn bị',
         shipping: 'Đang giao hàng',
         delivered: 'Đã giao hàng',
@@ -138,64 +118,93 @@ const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString('vi-VN');
 };
 
-const orderTimeline = computed(() => {
-    const timeline = [
-        {
-            label: 'Đơn hàng đã đặt',
-            time: order.value.created_at,
-            status: 'finish',
-        },
-    ];
-    if (order.value.order_status !== 'pending') {
-        timeline.push({
-            label: 'Đã xác nhận',
-            time: order.value.updated_at,
-            status: 'finish',
-        });
-    }
-    if (order.value.shipped_at) {
-        timeline.push({
-            label: 'Đang giao hàng',
-            time: order.value.shipped_at,
-            status: order.value.shipping_status === 'shipping' ? 'process' : 'finish',
-        });
-    }
-    if (order.value.delivered_at) {
-        timeline.push({
-            label: 'Đã giao hàng',
-            time: order.value.delivered_at,
-            status: 'finish',
-        });
-    }
-    if (order.value.cancelled_at) {
-        timeline.push({
-            label: 'Đơn hàng đã hủy',
-            time: order.value.cancelled_at,
-            status: 'error',
-        });
-    }
+// const orderTimeline = computed(() => {
+//     if (!order.value) return [];
 
-    return timeline;
-});
+//     const timeline = [
+//         {
+//             label: 'Đơn hàng đã đặt',
+//             time: order.value.created_at,
+//             status: 'finish',
+//         },
+//     ];
+
+//     if (order.value.order_status !== 'pending') {
+//         timeline.push({
+//             label: 'Đã xác nhận',
+//             time: order.value.updated_at,
+//             status: 'finish',
+//         });
+//     }
+
+//     if (order.value.shipped_at) {
+//         timeline.push({
+//             label: 'Đang giao hàng',
+//             time: order.value.shipped_at,
+//             status: order.value.shipping_status === 'shipping' ? 'process' : 'finish',
+//         });
+//     }
+
+//     if (order.value.delivered_at) {
+//         timeline.push({
+//             label: 'Đã giao hàng',
+//             time: order.value.delivered_at,
+//             status: 'finish',
+//         });
+//     }
+
+//     if (order.value.cancelled_at) {
+//         timeline.push({
+//             label: 'Đơn hàng đã hủy',
+//             time: order.value.cancelled_at,
+//             status: 'error',
+//         });
+//     }
+
+//     return timeline;
+// });
 
 const goBack = () => {
     router.push({ name: 'account-orders' });
 };
 
-const handleCancelOrder = () => {
-    // TODO: Implement cancel order
-    console.log('Cancel order:', orderId);
+const handleCancelOrder = async () => {
+    try {
+        const response = await axios.post(
+            `${API_URL}/orders/${orderId}/cancel`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            }
+        );
+
+        if (response.data.success) {
+            message.success('Hủy đơn hàng thành công');
+            fetchOrderDetail(); // Reload chi tiết đơn hàng
+        }
+    } catch (error) {
+        console.error('Cancel order error:', error);
+        message.error(error.response?.data?.message || 'Không thể hủy đơn hàng');
+    }
 };
 
 const handleReorder = () => {
     // TODO: Implement reorder
-    console.log('Reorder:', orderId);
+    message.info('Chức năng mua lại đang được phát triển');
 };
+
+onMounted(() => {
+    fetchOrderDetail();
+});
 </script>
 
 <template>
     <div class="order-details-page">
-        <a-card :bordered="false">
+        <TheLoadingSpinner v-if="loading" />
+
+        <a-card v-if="order" :bordered="false">
             <div class="page-header">
                 <a-button @click="goBack" type="text" class="back-button">
                     <template #icon>
@@ -203,7 +212,7 @@ const handleReorder = () => {
                     </template>
                     Quay lại
                 </a-button>
-                <h2>Chi tiết đơn hàng #{{ order.id }}</h2>
+                <h3>Chi tiết đơn hàng #{{ order.id }}</h3>
             </div>
 
             <!-- Order Status -->
@@ -218,37 +227,43 @@ const handleReorder = () => {
                 </div>
 
                 <!-- Timeline -->
-                <a-steps :current="orderTimeline.length - 1" class="order-timeline">
+                <!-- <a-steps :current="orderTimeline.length - 1" class="order-timeline">
                     <a-step v-for="(step, index) in orderTimeline" :key="index" :title="step.label"
                         :description="formatDate(step.time)" :status="step.status" />
-                </a-steps>
+                </a-steps> -->
             </a-card>
 
             <!-- Order Items -->
             <a-card title="Sản phẩm" class="section-card" :bordered="true">
                 <div class="order-items">
-                    <div v-for="item in order.order_items" :key="item.id" class="order-item">
-                        <img :src="item.product_image" :alt="item.product_name" class="item-image" />
+                    <div v-for="item in order.order_details" :key="item.id" class="order-item">
+                        <img :src="item.product_variant?.product?.thumbnail ? `${STORAGE_URL}/${item.product_variant.product.thumbnail}` : 'https://via.placeholder.com/100'"
+                            :alt="item.product_variant?.product?.title" class="item-image" />
                         <div class="item-info">
-                            <h4>{{ item.product_name }}</h4>
+                            <h4>{{ item.product_variant?.product?.title || 'Sản phẩm' }}</h4>
                             <p class="item-variant">
-                                <span v-if="item.size">Size: {{ item.size }}</span>
-                                <span v-if="item.color" class="separator">|</span>
-                                <span v-if="item.color">Màu: {{ item.color }}</span>
+                                <span v-if="item.product_variant?.size?.name">
+                                    Size: {{ item.product_variant.size.name }}
+                                </span>
+                                <span v-if="item.product_variant?.size?.name && item.product_variant?.color?.name"
+                                    class="separator">|</span>
+                                <span v-if="item.product_variant?.color?.name">
+                                    Màu: {{ item.product_variant.color.name }}
+                                </span>
                             </p>
                             <p class="item-quantity">Số lượng: {{ item.quantity }}</p>
                         </div>
                         <div class="item-price">
                             <p class="unit-price">{{ formatCurrency(item.price) }}</p>
-                            <p class="total-price">{{ formatCurrency(item.total) }}</p>
+                            <p class="total-price">{{ formatCurrency(item.total_price) }}</p>
                         </div>
                     </div>
                 </div>
             </a-card>
 
-            <a-row :gutter="16">
+            <div class="row g-3">
                 <!-- Shipping Information -->
-                <a-col :xs="24" :lg="12">
+                <div class="col-12 col-lg-6">
                     <a-card title="Thông tin giao hàng" class="section-card" :bordered="true">
                         <div class="info-group">
                             <p><strong>Người nhận:</strong> {{ order.fullname }}</p>
@@ -266,10 +281,10 @@ const handleReorder = () => {
                             </p>
                         </div>
                     </a-card>
-                </a-col>
+                </div>
 
                 <!-- Payment Information -->
-                <a-col :xs="24" :lg="12">
+                <div class="col-12 col-lg-6">
                     <a-card title="Thông tin thanh toán" class="section-card" :bordered="true">
                         <div class="info-group">
                             <p>
@@ -288,8 +303,8 @@ const handleReorder = () => {
                             </p>
                         </div>
                     </a-card>
-                </a-col>
-            </a-row>
+                </div>
+            </div>
 
             <!-- Order Summary -->
             <a-card title="Tổng quan đơn hàng" class="section-card" :bordered="true">
@@ -389,9 +404,9 @@ const handleReorder = () => {
     padding: 4px 12px;
 }
 
-.order-timeline {
+/* .order-timeline {
     margin-top: 24px;
-}
+} */
 
 .section-card {
     margin-bottom: 16px;

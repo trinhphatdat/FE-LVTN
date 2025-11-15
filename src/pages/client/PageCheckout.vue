@@ -8,6 +8,7 @@ import { useUserStore } from '@/stores/use-user-store';
 import { message } from 'ant-design-vue';
 import { storeToRefs } from 'pinia';
 import TheLoadingSpinner from '@/components/TheLoadingSpinner.vue';
+import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const STORAGE_URL = import.meta.env.VITE_STORAGE_URL;
@@ -23,18 +24,20 @@ if (!isLoggedIn.value) {
 
 // Form data
 const formData = ref({
+    user_id: null,
     fullname: '',
     phone_number: '',
     email: '',
     address: '',
     note: '',
     payment_method: 'cod',
-    discount_code: ''
+    discount_id: ''
 });
 
 // Khởi tạo thông tin người dùng
 onMounted(() => {
     if (user.value) {
+        formData.value.user_id = user.value.id;
         formData.value.fullname = user.value.fullname || '';
         formData.value.phone_number = user.value.phone_number || '';
         formData.value.email = user.value.email || '';
@@ -52,7 +55,7 @@ const totalMoney = computed(() => {
 
 // Áp dụng mã giảm giá
 const applyDiscountCode = () => {
-    if (!formData.value.discount_code) {
+    if (!formData.value.discount_id) {
         message.warning('Vui lòng nhập mã giảm giá');
         return;
     }
@@ -61,15 +64,42 @@ const applyDiscountCode = () => {
 };
 
 // Xử lý thanh toán
-const handleCheckout = () => {
+const handleCheckout = async () => {
     if (!formData.value.fullname || !formData.value.phone_number || !formData.value.address) {
         message.error('Vui lòng điền đầy đủ thông tin giao hàng');
         return;
     }
 
-    // TODO: Gọi API tạo đơn hàng
-    message.success('Đơn hàng sẽ được xử lý');
-    console.log('Checkout data:', formData.value);
+    try {
+        const response = await axios.post(`${API_URL}/orders/checkout`, {
+            fullname: formData.value.fullname,
+            phone_number: formData.value.phone_number,
+            email: formData.value.email,
+            address: formData.value.address,
+            text_note: formData.value.note,
+            payment_method: formData.value.payment_method,
+            promotion_id: formData.value.discount_id || null
+        }, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (response.data.success) {
+            message.success('Đặt hàng thành công!');
+
+            // Nếu có payment_url (MoMo), chuyển hướng
+            if (response.data.data.payment_url) {
+                window.location.href = response.data.data.payment_url;
+            } else {
+                // Chuyển đến trang đơn hàng
+                router.push({ name: 'account-orders' });
+            }
+        }
+    } catch (error) {
+        console.error('Checkout error:', error);
+        message.error(error.response?.data?.message || 'Đặt hàng thất bại');
+    }
 };
 </script>
 
@@ -152,9 +182,6 @@ const handleCheckout = () => {
                             <!-- Danh sách sản phẩm -->
                             <div class="product-list">
                                 <div v-for="item in cart_items.data" :key="item.id" class="product-item">
-                                    <div class="product-item-close">
-                                        <button type="button" class="btn-close-item">×</button>
-                                    </div>
                                     <div class="d-flex">
                                         <div class="product-image">
                                             <a-image v-if="item.product_variant?.product?.thumbnail"
@@ -168,19 +195,19 @@ const handleCheckout = () => {
                                             <div class="product-meta">
                                                 <span class="meta-item">
                                                     Kích cỡ: <strong>{{ item.product_variant?.size?.name || 'N/A'
-                                                    }}</strong>
+                                                        }}</strong>
                                                 </span>
                                             </div>
                                             <div class="product-meta">
                                                 <span class="meta-item">
                                                     Màu sắc: <strong>{{ item.product_variant?.color?.name || 'N/A'
-                                                    }}</strong>
+                                                        }}</strong>
                                                 </span>
                                             </div>
                                             <div class="product-meta mt-2">
                                                 <span class="product-price">
                                                     Giá: <strong>{{ Number(item.price || 0).toLocaleString('vi-VN')
-                                                        }}₫</strong>
+                                                    }}₫</strong>
                                                 </span>
                                             </div>
 
@@ -205,7 +232,7 @@ const handleCheckout = () => {
                             <div class="discount-code mt-3">
                                 <div class="input-group row">
                                     <div class="col-10">
-                                        <a-input v-model:value="formData.discount_code" placeholder="Nhập mã giảm giá"
+                                        <a-input v-model:value="formData.discount_id" placeholder="Nhập mã giảm giá"
                                             size="large" />
                                     </div>
                                     <div class="col-2">
@@ -307,12 +334,6 @@ const handleCheckout = () => {
     border: 1px solid #e8e8e8;
     border-radius: 8px;
     margin-bottom: 15px;
-}
-
-.product-item-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
 }
 
 .btn-close-item {

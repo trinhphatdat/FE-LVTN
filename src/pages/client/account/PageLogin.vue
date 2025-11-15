@@ -51,12 +51,12 @@ const handleLogin = () => {
     <a-form @submit.prevent="handleLogin">
         <!-- Email -->
         <div class="row mb-3">
-            <div class="col-12 col-sm-3 text-lg-end text-start">
+            <div class="col-12 col-sm-4 text-lg-end text-start">
                 <label for="">
                     <span :class="{ 'text-danger': errors.email }">Email</span>
                 </label>
             </div>
-            <div class="col-12 col-sm-8">
+            <div class="col-12 col-sm-5">
                 <a-input v-model:value="formLogin.email" type="email" placeholder="Nhập email" allow-clear
                     :class="{ 'input-danger': errors.email }" />
                 <div class="w-100"></div>
@@ -65,12 +65,12 @@ const handleLogin = () => {
         </div>
         <!-- Mật khẩu -->
         <div class="row mb-3">
-            <div class="col-12 col-sm-3 text-lg-end text-start">
+            <div class="col-12 col-sm-4 text-lg-end text-start">
                 <label for="">
                     <span :class="{ 'text-danger': errors.password }">Mật khẩu</span>
                 </label>
             </div>
-            <div class="col-12 col-sm-8">
+            <div class="col-12 col-sm-5">
                 <a-input-password v-model:value="formLogin.password" placeholder="Nhập mật khẩu"
                     :class="{ 'input-danger': errors.password }" />
                 <div class="w-100"></div>
