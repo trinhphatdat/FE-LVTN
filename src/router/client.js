@@ -117,6 +117,12 @@ const client = [
         name: 'cart',
         component: () => import('@/pages/client/PageCart.vue'),
         meta: { title: 'Giỏ hàng' }
-    }
+    },
+    {
+        path: '/checkout',
+        name: 'checkout',
+        component: () => import('@/pages/client/PageCheckout.vue'),
+        meta: { title: 'Thanh toán' }
+    },
 ];
 export default client;

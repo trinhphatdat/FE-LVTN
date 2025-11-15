@@ -14,38 +14,26 @@ const isSearched = ref(false);
 
 const searchProducts = () => {
     isSearched.value = true;
-    // if (keyword.value.trim() === '') {
-    //     products.value = [];
-    //     return;
-    // }
-    // axios.get(`${API_URL}/products/search`, { params: { q: keyword.value } })
-    //     .then((response) => {
-    //         products.value = response.data || [];
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error searching products:', error);
-    //         products.value = [];
-    //     });
-    products.value = [
-        {
-            id: 1,
-            title: 'Sản phẩm mẫu 1',
-            thumbnail: 'https://cdn.hstatic.net/products/1000184601/men_trang__2__0ebd195a57ca4f2b9f172b96e42064fc_master.jpg',
-            price: 100000,
-        },
-        {
-            id: 2,
-            title: 'Sản phẩm mẫu 2',
-            thumbnail: 'https://cdn.hstatic.net/products/1000184601/men_trang__2__0ebd195a57ca4f2b9f172b96e42064fc_master.jpg',
-            price: 200000,
-        },
-        {
-            id: 3,
-            title: 'Sản phẩm mẫu 3',
-            thumbnail: 'https://cdn.hstatic.net/products/1000184601/men_trang__2__0ebd195a57ca4f2b9f172b96e42064fc_master.jpg',
-            price: 150000,
-        },
-    ]
+    if (keyword.value.trim() === '') {
+        products.value = [];
+        return;
+    }
+    // keyword.value = keyword.value.trim();
+    axios.get(`${API_URL}/client/products/search`, { params: { q: keyword.value } })
+        .then((response) => {
+            products.value = response.data || [];
+        })
+        .catch((error) => {
+            console.error('Error searching products:', error);
+            products.value = [];
+        });
+};
+const formatCurrency = (value) => {
+    if (!value && value !== 0) return '0 VNĐ';
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(value);
 };
 </script>
 <template>
@@ -62,34 +50,25 @@ const searchProducts = () => {
                 kí tự '{{ keyword }}'</p>
             <p v-else class=" count-cart text-center">Không có sản phẩm nào</p>
         </div>
-        <div class="row">
-            <div v-for="item in products" :key="item.id" class="col-lg-4 col-md-6 col-6">
-                <div class="product">
-                    <div class="product-img">
-                        <router-link :to="{ name: 'product-detail', params: { id: item.id } }">
-                            <img :src="item.thumbnail.startsWith('http') ? item.thumbnail : `${STORAGE_URL}` + item.thumbnail"
-                                :alt="item.title" />
+        <div class="row mb-4">
+            <div v-for="product in products" :key="product.id" class="col-lg-3 col-md-6 col-12">
+                <div class="product-card">
+                    <div class="product-image-wrapper position-relative">
+                        <span v-if="product.discount" class="badge-discount"> -{{ product.discount }}% </span>
+                        <router-link :to="{ name: 'product-detail', params: { id: product.id } }">
+                            <img v-if="product.thumbnail" :src="`${STORAGE_URL}/${product.thumbnail}`"
+                                :alt="product.title" class="product-image">
                         </router-link>
+                        <span v-if="!product.thumbnail" class="placeholder-image">No Image</span>
                     </div>
-                    <div class="product-detail">
-                        <router-link :to="{ name: 'product-detail', params: { id: item.id } }">
-                            <span class="pro-name">{{ item.title }}</span>
-                        </router-link>
-                        <div class="box-bottom">
-                            <span class="price">
-                                {{ (item.price || 0).toLocaleString('vi-VN', {
-                                    style: 'currency',
-                                    currency: 'VND'
-                                }) }}
-                            </span>
-                            <router-link :to="{ name: 'product-detail', params: { id: item.id } }">
-                                <span class="btn-order">
-                                    Đặt hàng
-                                    <i class="fa-solid fa-plus plus-icon"></i>
-                                    <i class="fa-solid fa-chevron-right arrow-right"></i>
-                                </span>
-                            </router-link>
-                        </div>
+
+                    <h6 class="product-name">{{ product.title }}</h6>
+
+                    <div class="product-price">
+                        <span class="current-price">{{ formatCurrency(product.price) }}</span>
+                        <span v-if="product.discount != 0" class="old-price">{{
+                            formatCurrency(product.original_price)
+                            }}</span>
                     </div>
                 </div>
             </div>

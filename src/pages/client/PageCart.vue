@@ -18,10 +18,10 @@ const router = useRouter();
 const userStore = useUserStore();
 const { isLoggedIn, cart_items, isUserLoading } = storeToRefs(userStore);
 
-// if (!isLoggedIn.value) {
-//     message.error('Bạn cần đăng nhập để xem giỏ hàng');
-//     router.push({ name: 'account-login' });
-// }
+if (!isLoggedIn.value) {
+    message.error('Bạn cần đăng nhập để xem giỏ hàng');
+    router.push({ name: 'account-login' });
+}
 
 //Begin: Tăng giảm số lượng sản phẩm
 const increaseQuantity = (id) => {
@@ -31,14 +31,14 @@ const increaseQuantity = (id) => {
         .then(() => {
             window.location.reload();
         })
-        .catch(error => {
-            message.error('Tăng số lượng sản phẩm thất bại');
+        .catch((error) => {
+            message.error(error.response.data.message || 'Tăng số lượng sản phẩm thất bại');
             console.log(error);
         });
 }
 
 const decreaseQuantity = (item) => {
-    if (item.tempQuantity <= 1) {
+    if (item.quantity <= 1) {
         handleDeleteItem(item.id);
     }
     else {
@@ -65,7 +65,7 @@ const handleDeleteItem = (id) => {
         okText: 'Xoá',
         cancelText: 'Huỷ',
         onOk: () => {
-            axios.delete(`${API_URL}/cartItems/${id}`, {}, {
+            axios.delete(`${API_URL}/cartItems/${id}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             })
                 .then((response) => {
@@ -82,30 +82,9 @@ const handleDeleteItem = (id) => {
 }
 // End: Xoá sản phẩm khỏi giỏ hàng
 
-//Begin: Nhập số lượng sản phẩm theo ý muốn
-// const handleUpdateQuantity = (id, quantity) => {
-//     axios.put(`${API_URL}/cartItems/${id}`, { quantity }, {
-//         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-//     })
-//         .then((response) => {
-//             // message.success(response.data.message || 'Giảm số lượng sản phẩm thành công');
-//             window.location.reload();
-//             console.log(response);
-//         })
-//         .catch(error => {
-//             // message.error('Giảm số lượng sản phẩm thất bại');
-//             console.log(error);
-//         });
-// }
-// End: Nhập số lượng sản phẩm theo ý muốn
-
 const thanhtoan = () => {
-    message.success('Chức năng thanh toán chưa được triển khai');
+    router.push({ name: 'checkout' });
 }
-
-onMounted(() => {
-
-});
 
 </script>
 <template>
@@ -128,22 +107,26 @@ onMounted(() => {
                                 <tr v-for="item in cart_items.data" :key="item.id">
                                     <td class="image">
                                         <div class="product_image">
-                                            <a-image v-if="item.product?.thumbnail"
-                                                :src="item.product.thumbnail.startsWith('http') ? item.product.thumbnail : `${STORAGE_URL}` + item.product.thumbnail"
+                                            <a-image v-if="item.product_variant?.product?.thumbnail"
+                                                :src="`${STORAGE_URL}/${item.product_variant?.product?.thumbnail}`"
                                                 alt="Ảnh sản phẩm" style="max-width: 100px;" />
                                         </div>
                                     </td>
                                     <td class="item">
                                         <h5>
                                             <router-link
-                                                :to="{ name: 'product-detail', params: { id: item.product?.id } }">
+                                                :to="{ name: 'product-detail', params: { id: item.product_variant?.product?.id } }">
                                                 <a class="title" href="">
-                                                    {{ item.product?.title || 'Sản phẩm' }}
+                                                    {{ item.product_variant?.product?.title || 'Sản phẩm' }}
                                                 </a>
                                             </router-link>
                                         </h5>
                                         <span class="size">
-                                            Kích cỡ: {{ item.size?.name || 'N/A' }}
+                                            Kích cỡ: <strong>{{ item.product_variant?.size?.name || 'N/A' }}</strong>
+                                        </span>
+
+                                        <span class="color d-block mt-1">
+                                            Màu sắc: <strong>{{ item.product_variant?.color?.name || 'N/A' }}</strong>
                                         </span>
 
                                         <div>
@@ -155,13 +138,11 @@ onMounted(() => {
                                             <input type="button" value="-" class="qty-btn"
                                                 @click="decreaseQuantity(item)">
                                             <input type="text" id="quantity" name="quantity" class="quantity"
-                                                v-model="item.tempQuantity" min="1"
-                                                @change="handleUpdateQuantity(item.id, item.tempQuantity)"
-                                                @keyup.enter="handleUpdateQuantity(item.id, item.tempQuantity)">
+                                                v-model="item.quantity" min="1" disabled>
                                             <input type="button" value="+" class="qty-btn"
-                                                @click="increaseQuantity(item.id, item.tempQuantity)">
+                                                @click="increaseQuantity(item.id)">
                                             <span class="quantity-text ms-2" style="line-height: 32px;">Số lượng: {{
-                                                item.tempQuantity }}</span>
+                                                item.quantity }}</span>
                                         </div>
                                         <div class="price float-start float-sm-end">
                                             <span style="font-weight: 500;">
@@ -171,8 +152,7 @@ onMounted(() => {
                                             </span>
                                         </div>
                                     </td>
-                                    <td class="remove">
-
+                                    <td class="remove d-flex align-items-start justify-content-center">
                                         <button type="button" class="btn" @click="handleDeleteItem(item.id)">
                                             <img src="@/assets/iconX.png" alt="Xóa">
                                         </button>

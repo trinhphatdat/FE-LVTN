@@ -53,7 +53,7 @@ export const useUserStore = defineStore('user', () => {
         })
             .then((response) => {
                 if (response && response.data) {
-                    cart_items.value = response.data.cart_items || []
+                    cart_items.value = response.data
                 } else {
                     cart_items.value = []
                 }

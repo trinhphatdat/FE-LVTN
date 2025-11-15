@@ -3,7 +3,7 @@ import TheHeader from '@/components/client/TheHeader.vue';
 import TheFooter from '@/components/client/TheFooter.vue';
 import TheBreadcumbs from '@/components/TheBreadcumbs.vue';
 import TheLoadingSpinner from '@/components/TheLoadingSpinner.vue';
-import { reactive, ref, onMounted, watch } from 'vue';
+import { reactive, ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
 import axios from 'axios';
@@ -30,29 +30,30 @@ const showSizeGuide = ref(false);
 // Review state
 const reviewRating = ref(5);
 const reviewComment = ref('');
-const demoReviews = ref([
-    {
-        id: 1,
-        user_name: 'Nguyễn Văn A',
-        rating: 5,
-        comment: 'Sản phẩm rất tốt, chất lượng tuyệt vời!',
-        created_at: '2025-10-28 14:30:00',
-    },
-    {
-        id: 2,
-        user_name: 'Trần Thị B',
-        rating: 4,
-        comment: 'Sản phẩm tốt, giao hàng nhanh. Sẽ ủng hộ thêm!',
-        created_at: '2025-10-27 10:15:00',
-    },
-    {
-        id: 3,
-        user_name: 'Lê Văn C',
-        rating: 5,
-        comment: 'Tuyệt vời, đúng như mô tả. Rất hài lòng!',
-        created_at: '2025-10-26 16:45:00',
-    }
-]);
+const demoReviews = ref(
+    [
+        {
+            id: 1,
+            user_name: 'Nguyễn Văn A',
+            rating: 5,
+            comment: 'Sản phẩm rất tốt, chất lượng tuyệt vời!',
+            created_at: '2025-10-28 14:30:00',
+        },
+        {
+            id: 2,
+            user_name: 'Trần Thị B',
+            rating: 4,
+            comment: 'Sản phẩm tốt, giao hàng nhanh. Sẽ ủng hộ thêm!',
+            created_at: '2025-10-27 10:15:00',
+        },
+        {
+            id: 3,
+            user_name: 'Lê Văn C',
+            rating: 5,
+            comment: 'Tuyệt vời, đúng như mô tả. Rất hài lòng!',
+            created_at: '2025-10-26 16:45:00',
+        }
+    ]);
 const averageRating = ref(4.7);
 const totalReviews = ref(demoReviews.value.length);
 
@@ -66,79 +67,118 @@ const decreaseQuantity = () => {
     }
 }
 
-// Fixed product data - Dữ liệu mẫu
 const product = reactive({
-    id: 1,
-    title: 'Áo Thun BLOVINGYOU 01 - Phong Cách Streetwear',
-    thumbnail: 'https://cdn.hstatic.net/products/1000184601/men_trang__1__f923c0a5e9854dbca52f45f507ebdc91_master.jpg',
-    images: [
-        'https://cdn.hstatic.net/products/1000184601/men_trang__3__c7a856ef1c1f46c4ae9fb633d370226c_master.jpg',
-        'https://cdn.hstatic.net/products/1000184601/men_trang__4__2a228fdd7e4644569736dfaa9b0dd856_master.jpg',
-        'https://cdn.hstatic.net/products/1000184601/men_trang__5__25f6deed816a45efaa688e417a3147e9_master.jpg',
-        'https://cdn.hstatic.net/products/1000184601/men_trang__6__497abad5903e45929e09a7c61fea1c26_master.jpg',
-    ],
-    original_price: 450000,
-    discount: 20,
-    price: 360000,
-    description: 'Áo thun BLOVINGYOU 01 với thiết kế streetwear hiện đại, chất liệu cotton cao cấp, form rộng thoải mái. Phù hợp cho cả nam và nữ.',
-    brand: 'BLOVINGYOU',
-    material: 'Cotton 100%',
-    gender: 'unisex',
-    sizes: [
-        { size_id: 1, name: 'S', stock: 10 },
-        { size_id: 2, name: 'M', stock: 15 },
-        { size_id: 3, name: 'L', stock: 20 },
-        { size_id: 4, name: 'XL', stock: 0 },
-        { size_id: 5, name: 'XXL', stock: 5 }
-    ],
-    colors: [
-        { color_id: 1, name: 'Đen', hex_code: '#000000' },
-        { color_id: 2, name: 'Trắng', hex_code: '#FFFFFF' },
-        { color_id: 3, name: 'Xám', hex_code: '#808080' }
-    ],
+    id: null,
+    title: '',
+    thumbnail: null,
+    original_price: 0,
+    discount: 0,
+    price: 0,
+    description: '',
+    brand: null,
+    material: '',
+    gender: '',
+    product_variants: [],
     size_guide_image: 'https://file.hstatic.net/1000364782/file/size_menao1_962bae68ced346199475c67fb804a14f.jpg'
 });
 
-// Comment code API - giữ lại để sau này sử dụng
-// const product = reactive({
-//     id: null,
-//     title: '',
-//     thumbnail: null,
-//     original_price: '',
-//     discount: '',
-//     price: '',
-//     description: '',
-//     sizes: [],
-// });
+// Computed properties để lấy danh sách colors và sizes từ variants
+const availableColors = computed(() => {
+    const colors = [];
+    const colorMap = new Map();
 
-// const getProduct = () => {
-//     axios.get(`${API_URL}/products/${route.params.id}`)
-//         .then((response) => {
-//             const data = response.data;
-//             product.id = data.id;
-//             product.title = data.title
-//             product.thumbnail = data.thumbnail;
-//             product.original_price = data.original_price;
-//             product.discount = data.discount;
-//             product.price = data.price;
-//             product.description = data.description;
-//             product.sizes = data.variants;
-//         })
-//         .catch((error) => {
-//             message.error('Không tìm thấy sản phẩm!', error);
-//             router.push({ name: 'collections-mon-chinh' });
-//         })
-//         .finally(() => {
-//             isLoading.value = false;
-//         });
-// };
+    product.product_variants.forEach(variant => {
+        if (variant.color && !colorMap.has(variant.color.id)) {
+            colorMap.set(variant.color.id, {
+                color_id: variant.color.id,
+                name: variant.color.name,
+                hex_code: variant.color.hex_code
+            });
+        }
+    });
+
+    return Array.from(colorMap.values());
+});
+
+const availableSizes = computed(() => {
+    const sizes = [];
+    const sizeMap = new Map();
+
+    product.product_variants.forEach(variant => {
+        if (variant.size) {
+            const key = variant.size.id;
+            if (!sizeMap.has(key)) {
+                sizeMap.set(key, {
+                    size_id: variant.size.id,
+                    name: variant.size.name,
+                    stock: 0
+                });
+            }
+            // Cộng dồn stock của các variant cùng size
+            const sizeData = sizeMap.get(key);
+            sizeData.stock += variant.stock || 0;
+        }
+    });
+
+    return Array.from(sizeMap.values());
+});
+
+// Computed property để lấy TẤT CẢ hình ảnh từ tất cả variants
+const displayImages = computed(() => {
+    const images = [];
+    const imageSet = new Set(); // Để tránh ảnh trùng lặp
+
+    // Lấy tất cả ảnh từ tất cả variants
+    product.product_variants.forEach(variant => {
+        if (variant.product_images && variant.product_images.length > 0) {
+            variant.product_images.forEach(img => {
+                const imageUrl = `${STORAGE_URL}/${img.image_url}`;
+                if (!imageSet.has(imageUrl)) {
+                    imageSet.add(imageUrl);
+                    images.push(imageUrl);
+                }
+            });
+        }
+    });
+
+    // Nếu không có ảnh từ variants, dùng thumbnail
+    if (images.length === 0 && product.thumbnail) {
+        images.push(`${STORAGE_URL}/${product.thumbnail}`);
+    }
+
+    return images;
+});
 
 const getProduct = () => {
-    // Simulate API call
     isLoading.value = true;
-    setTimeout(() => {
-        isLoading.value = false;
-    }, 500);
+    axios.get(`${API_URL}/client/products/${route.params.id}`)
+        .then((response) => {
+            const data = response.data;
+            product.id = data.id;
+            product.title = data.title;
+            product.thumbnail = data.thumbnail;
+            product.original_price = parseFloat(data.original_price);
+            product.discount = data.discount;
+            product.price = parseFloat(data.price);
+            product.description = data.description;
+            product.brand = data.brand;
+            product.material = data.material;
+            product.gender = data.gender;
+            product.product_variants = data.product_variants || [];
+
+            // Tự động chọn màu đầu tiên nếu có
+            if (availableColors.value.length > 0) {
+                color_id.value = availableColors.value[0].color_id;
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            message.error('Không tìm thấy sản phẩm!');
+            router.push({ name: 'home' });
+        })
+        .finally(() => {
+            isLoading.value = false;
+        });
 };
 
 onMounted(() => {
@@ -155,30 +195,42 @@ const handleAddToCart = () => {
         return;
     }
 
+    // Tìm variant tương ứng với size và color đã chọn
+    const selectedVariant = product.product_variants.find(
+        v => v.size_id === size_id.value && v.color_id === color_id.value
+    );
+
+    if (!selectedVariant) {
+        message.error('Sản phẩm với màu và size này không tồn tại');
+        return;
+    }
+
+    if (selectedVariant.stock < quantity.value) {
+        message.warning(`Chỉ còn ${selectedVariant.stock} sản phẩm trong kho`);
+        return;
+    }
+
     if (!isLoggedIn.value) {
         message.error('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng');
         router.push({ name: 'account-login' });
     }
     else {
-        // Comment code API - giữ lại để sau này sử dụng
-        // axios.post(`${API_URL}/cartItems`, {
-        //     cart_id: user.value.cart_id,
-        //     product_id: product.id,
-        //     quantity: quantity.value,
-        //     size_id: size_id.value
-        // }, {
-        //     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        // })
-        //     .then(() => {
-        //         message.success('Thêm sản phẩm vào giỏ hàng thành công');
-        //         router.push({ name: 'cart' });
-        //     })
-        //     .catch((error) => {
-        //         message.error('Thêm sản phẩm vào giỏ hàng thất bại', error);
-        //     });
-
-        // Simulate add to cart
-        message.success('Thêm sản phẩm vào giỏ hàng thành công');
+        axios.post(`${API_URL}/cartItems`, {
+            cart_id: user.value.cart_id,
+            product_id: product.id,
+            product_variant_id: selectedVariant.id,
+            quantity: quantity.value,
+        }, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        })
+            .then(() => {
+                message.success('Thêm sản phẩm vào giỏ hàng thành công');
+                router.push({ name: 'cart' });
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                message.error('Thêm sản phẩm vào giỏ hàng thất bại');
+            });
     }
 }
 
@@ -242,20 +294,23 @@ const toggleSizeGuide = () => {
                     <div class="productPage-img">
                         <!-- Main Image -->
                         <div class="main-image-wrapper">
-                            <a-image-preview-group>
-                                <a-image :src="product.images[currentImageIndex]" :alt="product.title"
+                            <a-image-preview-group v-if="displayImages.length > 0">
+                                <a-image :src="displayImages[currentImageIndex]" :alt="product.title"
                                     class="main-image" />
                                 <!-- Ẩn các hình khác -->
                                 <a-image
-                                    v-for="(image, index) in product.images.filter((_, i) => i !== currentImageIndex)"
+                                    v-for="(image, index) in displayImages.filter((_, i) => i !== currentImageIndex)"
                                     :key="index" :src="image" :style="{ display: 'none' }" />
                             </a-image-preview-group>
+                            <div v-else class="no-image-placeholder">
+                                <span>Chưa có hình ảnh</span>
+                            </div>
                         </div>
 
-                        <!-- Thumbnails các ảnh liên quan -->
-                        <div class="thumbnails-gallery mt-3">
+                        <!-- Thumbnails các ảnh -->
+                        <div class="thumbnails-gallery mt-3" v-if="displayImages.length > 1">
                             <div class="row g-2">
-                                <div v-for="(image, index) in product.images" :key="index" class="col-3">
+                                <div v-for="(image, index) in displayImages" :key="index" class="col-3">
                                     <div class="thumbnail-item" :class="{ active: currentImageIndex === index }"
                                         @click="changeMainImage(index)">
                                         <img :src="image" :alt="`${product.title} ${index + 1}`"
@@ -285,9 +340,9 @@ const toggleSizeGuide = () => {
                         <!-- End: Tên sản phẩm -->
 
                         <!-- Begin: Thương hiệu -->
-                        <div class=" product-brand mb-2">
+                        <div class="product-brand mb-2" v-if="product.brand">
                             <span class="text-muted">Thương hiệu: </span>
-                            <span class="fw-bold">{{ product.brand }}</span>
+                            <span class="fw-bold">{{ product.brand.name }}</span>
                         </div>
                         <!-- End: Thương hiệu -->
 
@@ -295,13 +350,13 @@ const toggleSizeGuide = () => {
                         <div class="product-price" id="product-price">
                             <template v-if="Number(product.discount) > 0">
                                 <span class="pro-original-price">
-                                    {{ Number(product.original_price || '0').toLocaleString('vi-VN', {
+                                    {{ product.original_price.toLocaleString('vi-VN', {
                                         style: 'currency', currency: 'VND'
                                     }) }}
                                 </span>
                                 <span class="pro-discount">-{{ product.discount }}%</span>
                                 <span class="pro-price">
-                                    {{ Number(product.price || '0').toLocaleString('vi-VN', {
+                                    {{ product.price.toLocaleString('vi-VN', {
                                         style: 'currency',
                                         currency: 'VND'
                                     }) }}
@@ -309,7 +364,7 @@ const toggleSizeGuide = () => {
                             </template>
                             <template v-else>
                                 <span class="pro-price">
-                                    {{ Number(product.price || '0').toLocaleString('vi-VN', {
+                                    {{ product.price.toLocaleString('vi-VN', {
                                         style: 'currency',
                                         currency: 'VND'
                                     }) }}
@@ -329,10 +384,10 @@ const toggleSizeGuide = () => {
                         <form @submit.prevent="handleAddToCart">
                             <div class="selector-actions">
                                 <!-- Begin: màu sắc -->
-                                <div class="product-color mb-3">
+                                <div class="product-color mb-3" v-if="availableColors.length > 0">
                                     <label class="form-label fw-bold">Màu sắc:</label>
                                     <div class="color-options">
-                                        <div v-for="color in product.colors" :key="color.color_id" class="color-item"
+                                        <div v-for="color in availableColors" :key="color.color_id" class="color-item"
                                             :class="{ active: color_id === color.color_id }"
                                             @click="color_id = color.color_id">
                                             <div class="color-circle" :style="{ backgroundColor: color.hex_code }">
@@ -344,7 +399,7 @@ const toggleSizeGuide = () => {
                                 <!-- End: màu sắc -->
 
                                 <!-- Begin: kích thước -->
-                                <div class="product-size mb-3">
+                                <div class="product-size mb-3" v-if="availableSizes.length > 0">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <label class="form-label fw-bold mb-0">Kích thước:</label>
                                         <a href="javascript:void(0)" class="size-guide-link" @click="toggleSizeGuide">
@@ -353,7 +408,7 @@ const toggleSizeGuide = () => {
                                     </div>
 
                                     <a-radio-group class="radio-group" v-model:value="size_id" button-style="solid">
-                                        <a-radio-button v-for="size in product.sizes" :key="size.size_id"
+                                        <a-radio-button v-for="size in availableSizes" :key="size.size_id"
                                             :value="size.size_id" class="radio-button me-2"
                                             :disabled="size.stock === 0">
                                             {{ size.name }}
@@ -386,8 +441,14 @@ const toggleSizeGuide = () => {
 
                         <!-- Form viết đánh giá -->
                         <div class="write-review mb-4">
+                            <div v-if="!isLoggedIn" class="text-danger mb-3">
+                                <span>Bạn cần đăng nhập để viết đánh giá</span>
+                                <router-link :to="{ name: 'account-login' }" class="ms-2 text-primary">
+                                    Đăng nhập
+                                </router-link>
+                            </div>
                             <a-card title="Viết đánh giá của bạn">
-                                <a-form @submit.prevent="handleSubmitReview">
+                                <a-form @submit.prevent="handleSubmitReview" :disabled="!isLoggedIn">
                                     <div class="mb-3">
                                         <label class="form-label">Đánh giá của bạn:</label>
                                         <div>
@@ -731,5 +792,17 @@ const toggleSizeGuide = () => {
         width: 35px;
         height: 35px;
     }
+}
+
+.no-image-placeholder {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    color: #999;
+    font-size: 18px;
+    border-radius: 8px;
 }
 </style>
