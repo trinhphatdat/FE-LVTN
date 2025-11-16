@@ -34,9 +34,13 @@ const handleLogin = () => {
             router.push({ name: 'home' });
         })
         .catch((error) => {
+            console.log(error);
             if (error.response && error.response.status === 422) {
                 message.error('Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.');
                 errors.value = error.response.data.errors;
+            }
+            else if (error.response.status === 403) {
+                message.error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
             } else {
                 message.error('Email hoặc mật khẩu không đúng.');
             }

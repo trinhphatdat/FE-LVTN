@@ -85,7 +85,7 @@ const getOrderStatusColor = (status) => {
         delivered: 'green',
         cancelled: 'red',
     };
-    return colors[status] || 'default';
+    return colors[status] || 'green';
 };
 
 const getOrderStatusText = (status) => {
@@ -93,7 +93,7 @@ const getOrderStatusText = (status) => {
         pending: 'Chờ xác nhận',
         confirmed: 'Đã xác nhận',
         shipping: 'Đang giao',
-        delivered: 'Đã giao',
+        completed: 'Đã giao',
         cancelled: 'Đã hủy',
     };
     return texts[status] || status;

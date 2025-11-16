@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, /*computed*/ } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeftOutlined } from '@ant-design/icons-vue';
 import { useUserStore } from '@/stores/use-user-store';
@@ -182,7 +182,7 @@ const handleCancelOrder = async () => {
 
         if (response.data.success) {
             message.success('Hủy đơn hàng thành công');
-            fetchOrderDetail(); // Reload chi tiết đơn hàng
+            fetchOrderDetail();
         }
     } catch (error) {
         console.error('Cancel order error:', error);
@@ -283,7 +283,6 @@ onMounted(() => {
                     </a-card>
                 </div>
 
-                <!-- Payment Information -->
                 <div class="col-12 col-lg-6">
                     <a-card title="Thông tin thanh toán" class="section-card" :bordered="true">
                         <div class="info-group">
@@ -306,7 +305,6 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- Order Summary -->
             <a-card title="Tổng quan đơn hàng" class="section-card" :bordered="true">
                 <div class="order-summary">
                     <div class="summary-row">

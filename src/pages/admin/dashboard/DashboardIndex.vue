@@ -1,28 +1,66 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useMenuAdmin } from '@/stores/use-menu-admin.js';
+import axios from 'axios';
+import { message } from 'ant-design-vue';
 
-// Dữ liệu mẫu - sau này sẽ lấy từ API
+const API_URL = import.meta.env.VITE_API_URL;
+
+const store = useMenuAdmin();
+store.onSelectedKeys(['admin-dashboard']);
+
+const loading = ref(false);
+
+// Dữ liệu thống kê
 const statistics = ref({
-    totalRevenue: 125000000,
-    totalOrders: 1234,
-    totalProducts: 156,
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalProducts: 0,
+    totalCustomers: 0,
+    pendingOrders: 0,
+    lowStockProducts: 0,
+    currentMonthRevenue: 0,
+    revenueGrowth: 0,
 });
 
 // Dữ liệu doanh thu theo tháng
-const monthlyRevenue = ref([
-    { month: 'T1', revenue: 8500000 },
-    { month: 'T2', revenue: 9200000 },
-    { month: 'T3', revenue: 11000000 },
-    { month: 'T4', revenue: 10500000 },
-    { month: 'T5', revenue: 12300000 },
-    { month: 'T6', revenue: 13800000 },
-    { month: 'T7', revenue: 15200000 },
-    { month: 'T8', revenue: 14500000 },
-    { month: 'T9', revenue: 13000000 },
-    { month: 'T10', revenue: 14800000 },
-    { month: 'T11', revenue: 16500000 },
-    { month: 'T12', revenue: 15800000 },
-]);
+const monthlyRevenue = ref([]);
+
+// Lấy thống kê tổng quan
+const getStatistics = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/admin/dashboard/statistics`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (response.data.success) {
+            statistics.value = response.data.data;
+        }
+    } catch (error) {
+        console.error('Error fetching statistics:', error);
+        message.error('Không thể tải thống kê');
+    }
+};
+
+// Lấy doanh thu theo tháng
+const getMonthlyRevenue = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/admin/dashboard/monthly-revenue`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (response.data.success) {
+            monthlyRevenue.value = response.data.data;
+        }
+    } catch (error) {
+        console.error('Error fetching monthly revenue:', error);
+        message.error('Không thể tải doanh thu theo tháng');
+    }
+};
 
 // Cấu hình biểu đồ
 const chartOption = computed(() => ({
@@ -38,7 +76,8 @@ const chartOption = computed(() => ({
         trigger: 'axis',
         formatter: (params) => {
             const value = params[0].value;
-            return `${params[0].name}<br/>Doanh thu: ${formatCurrency(value)}`;
+            const orderCount = monthlyRevenue.value[params[0].dataIndex]?.order_count || 0;
+            return `${params[0].name}<br/>Doanh thu: ${formatCurrency(value)}<br/>Số đơn: ${orderCount}`;
         }
     },
     xAxis: {
@@ -95,44 +134,117 @@ const chartOption = computed(() => ({
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 };
+
+const loadData = async () => {
+    loading.value = true;
+    try {
+        await Promise.all([
+            getStatistics(),
+            getMonthlyRevenue()
+        ]);
+    } finally {
+        loading.value = false;
+    }
+};
+
+onMounted(() => {
+    loadData();
+});
 </script>
 
 <template>
     <div class="dashboard-container">
         <h3 class="mb-4">Dashboard</h3>
 
-        <!-- Thống kê -->
+        <!-- Thống kê chính -->
         <div class="row g-3 mb-4">
-            <div class="col-12 col-md-6 col-lg-4">
-                <a-card class="card">
-                    <a-statistic title="Tổng doanh thu" :value="statistics.totalRevenue" :precision="0" suffix="₫"
+            <div class="col-12 col-sm-6 col-lg-3">
+                <a-card class="card" :loading="loading">
+                    <a-statistic title="Tổng doanh thu" :value="statistics.totalRevenue" :precision="0"
                         :value-style="{ color: '#3f8600' }">
                         <template #prefix>
                             <i class="fa-solid fa-dollar-sign"></i>
                         </template>
+                        <template #suffix>
+                            <span style="font-size: 14px;">₫</span>
+                        </template>
                     </a-statistic>
+                    <div class="mt-2 text-muted" style="font-size: 12px;">
+                        <span :class="statistics.revenueGrowth >= 0 ? 'text-success' : 'text-danger'">
+                            <i
+                                :class="statistics.revenueGrowth >= 0 ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'"></i>
+                            {{ statistics.revenueGrowth }}%
+                        </span>
+                        so với tháng trước
+                    </div>
                 </a-card>
             </div>
 
-            <div class="col-12 col-md-6 col-lg-4">
-                <a-card class="card">
+            <div class="col-12 col-sm-6 col-lg-3">
+                <a-card class="card" :loading="loading">
                     <a-statistic title="Tổng đơn hàng" :value="statistics.totalOrders"
                         :value-style="{ color: '#1890ff' }">
                         <template #prefix>
                             <i class="fa-solid fa-shopping-cart"></i>
                         </template>
                     </a-statistic>
+                    <div class="mt-2 text-muted" style="font-size: 12px;">
+                        <a-tag color="orange">{{ statistics.pendingOrders }}</a-tag>
+                        đơn chờ xử lý
+                    </div>
                 </a-card>
             </div>
 
-            <div class="col-12 col-md-6 col-lg-4">
-                <a-card class="card">
+            <div class="col-12 col-sm-6 col-lg-3">
+                <a-card class="card" :loading="loading">
                     <a-statistic title="Tổng sản phẩm" :value="statistics.totalProducts"
                         :value-style="{ color: '#cf1322' }">
                         <template #prefix>
                             <i class="fa-solid fa-shirt"></i>
                         </template>
                     </a-statistic>
+                    <div class="mt-2 text-muted" style="font-size: 12px;">
+                        <a-tag v-if="statistics.lowStockProducts > 0" color="red">
+                            {{ statistics.lowStockProducts }}
+                        </a-tag>
+                        <span v-if="statistics.lowStockProducts > 0">sắp hết hàng</span>
+                        <span v-else class="text-success">Tồn kho ổn định</span>
+                    </div>
+                </a-card>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <a-card class="card" :loading="loading">
+                    <a-statistic title="Tổng khách hàng" :value="statistics.totalCustomers"
+                        :value-style="{ color: '#722ed1' }">
+                        <template #prefix>
+                            <i class="fa-solid fa-users"></i>
+                        </template>
+                    </a-statistic>
+                    <div class="mt-2 text-muted" style="font-size: 12px;">
+                        Khách hàng đã đăng ký
+                    </div>
+                </a-card>
+            </div>
+        </div>
+
+        <!-- Doanh thu tháng hiện tại -->
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <a-card class="card" :loading="loading">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Doanh thu tháng này</h6>
+                            <h3 class="mb-0 text-success">{{ formatCurrency(statistics.currentMonthRevenue) }}</h3>
+                        </div>
+                        <div class="text-end">
+                            <a-tag :color="statistics.revenueGrowth >= 0 ? 'green' : 'red'" style="font-size: 16px;">
+                                <i
+                                    :class="statistics.revenueGrowth >= 0 ? 'fa-solid fa-arrow-trend-up' : 'fa-solid fa-arrow-trend-down'"></i>
+                                {{ statistics.revenueGrowth >= 0 ? '+' : '' }}{{ statistics.revenueGrowth }}%
+                            </a-tag>
+                        </div>
+                    </div>
                 </a-card>
             </div>
         </div>
@@ -140,7 +252,7 @@ const formatCurrency = (value) => {
         <!-- Biểu đồ doanh thu -->
         <div class="row">
             <div class="col-12">
-                <a-card>
+                <a-card :loading="loading">
                     <v-chart class="chart" :option="chartOption" autoresize />
                 </a-card>
             </div>
